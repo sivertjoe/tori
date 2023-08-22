@@ -11,6 +11,32 @@ macro_rules! ptr {
     };
 }
 
+macro_rules! gl_call {
+    ($fun:expr) => {{
+        $fun;
+        if !gl_log_call()
+        {
+            println!("{} yielded an error in {}, line: {}", stringify!($fun), file!(), line!());
+            std::process::exit(1);
+        }
+    }};
+}
+
+unsafe fn gl_log_call() -> bool
+{
+    loop
+    {
+        let error = gl::GetError();
+        if error == gl::NO_ERROR
+        {
+            break;
+        }
+        println!("[OpenGL Error] ({:x})", error);
+        return false;
+    }
+    return true;
+}
+
 unsafe fn compile_shader(r#type: u32, src: &[u8]) -> u32
 {
     let id = gl::CreateShader(r#type);
@@ -166,7 +192,7 @@ unsafe fn main_()
     {
         gl::Clear(gl::COLOR_BUFFER_BIT);
 
-        gl::DrawElements(gl::TRIANGLES, 6, gl::UNSIGNED_INT, std::ptr::null());
+        gl_call!(gl::DrawElements(gl::TRIANGLES, 6, gl::UNSIGNED_INT, std::ptr::null()));
 
         window.swap_buffers();
 

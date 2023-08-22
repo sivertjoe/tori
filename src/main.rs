@@ -11,6 +11,38 @@ macro_rules! ptr {
     };
 }
 
+macro_rules! raw {
+    ($p:expr) => {
+        $p.as_ptr() as *const std::ffi::c_char
+    };
+}
+
+macro_rules! gl_call {
+    ($fun:expr) => {{
+        $fun;
+        if !gl_log_call()
+        {
+            println!("{} yielded an error in {}, line: {}", stringify!($fun), file!(), line!());
+            std::process::exit(1);
+        }
+    }};
+}
+
+unsafe fn gl_log_call() -> bool
+{
+    loop
+    {
+        let error = gl::GetError();
+        if error == gl::NO_ERROR
+        {
+            break;
+        }
+        println!("[OpenGL Error] ({:x})", error);
+        return false;
+    }
+    return true;
+}
+
 unsafe fn compile_shader(r#type: u32, src: &[u8]) -> u32
 {
     let id = gl::CreateShader(r#type);
@@ -110,6 +142,7 @@ unsafe fn main_()
     gl::load_with(|s| window.get_proc_address(s));
 
     glfw.make_context_current(Some(&window));
+    glfw.set_swap_interval(glfw::SwapInterval::Sync(1));
 
 
     #[rustfmt::skip]
@@ -161,12 +194,27 @@ unsafe fn main_()
     let shader = create_shader(vertex_shader.as_bytes(), fragment_shader.as_bytes());
     gl::UseProgram(shader as _);
 
+    let location = gl::GetUniformLocation(shader as _, raw!("u_Color\0"));
+    assert!(location != -1);
 
+    let mut r = 0.0;
+    let mut inc = 0.05;
     while !window.should_close()
     {
         gl::Clear(gl::COLOR_BUFFER_BIT);
 
-        gl::DrawElements(gl::TRIANGLES, 6, gl::UNSIGNED_INT, std::ptr::null());
+        if r > 1.0
+        {
+            inc = -0.05;
+        }
+        else if r < 0.0
+        {
+            inc = 0.05;
+        }
+        r += inc;
+
+        gl::Uniform4f(location, r, 0.3, 0.8, 1.0);
+        gl_call!(gl::DrawElements(gl::TRIANGLES, 6, gl::UNSIGNED_INT, std::ptr::null()));
 
         window.swap_buffers();
 
