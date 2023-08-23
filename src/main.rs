@@ -3,45 +3,17 @@ use std::{
     mem::{size_of, size_of_val},
 };
 
+#[macro_use]
+mod renderer;
+#[macro_use]
+mod util;
+mod vertex_buffer;
+
 use glfw::Context;
+use renderer::*;
 
-macro_rules! ptr {
-    ($p:expr) => {
-        $p.as_ptr() as *const std::ffi::c_void
-    };
-}
+mod index_buffer;
 
-macro_rules! raw {
-    ($p:expr) => {
-        $p.as_ptr() as *const std::ffi::c_char
-    };
-}
-
-macro_rules! gl_call {
-    ($fun:expr) => {{
-        $fun;
-        if !gl_log_call()
-        {
-            println!("{} yielded an error in {}, line: {}", stringify!($fun), file!(), line!());
-            std::process::exit(1);
-        }
-    }};
-}
-
-unsafe fn gl_log_call() -> bool
-{
-    loop
-    {
-        let error = gl::GetError();
-        if error == gl::NO_ERROR
-        {
-            break;
-        }
-        println!("[OpenGL Error] ({:x})", error);
-        return false;
-    }
-    return true;
-}
 
 unsafe fn compile_shader(r#type: u32, src: &[u8]) -> u32
 {
@@ -52,6 +24,7 @@ unsafe fn compile_shader(r#type: u32, src: &[u8]) -> u32
 
     gl::ShaderSource(id, 1, &ptr_i8, std::ptr::null());
     gl::CompileShader(id);
+
 
     let mut res = 0;
     gl::GetShaderiv(id, gl::COMPILE_STATUS, &mut res);
@@ -159,18 +132,9 @@ unsafe fn main_()
         2, 3, 0
     ];
 
-    let mut buffer = 0;
-    gl::GenBuffers(1, &mut buffer);
-    gl::BindBuffer(gl::ARRAY_BUFFER, buffer);
-    gl::BufferData(
-        gl::ARRAY_BUFFER,
-        size_of_val(&positions) as isize,
-        ptr!(positions),
-        gl::STATIC_DRAW,
-    );
+    let vb = vertex_buffer::VertexBuffer::new(&positions);
 
     gl::EnableVertexAttribArray(0);
-
     gl::VertexAttribPointer(
         0,
         2,
@@ -180,15 +144,7 @@ unsafe fn main_()
         0 as *const c_void,
     );
 
-    let mut ibo = 0;
-    gl::GenBuffers(1, &mut ibo);
-    gl::BindBuffer(gl::ELEMENT_ARRAY_BUFFER, ibo);
-    gl::BufferData(
-        gl::ELEMENT_ARRAY_BUFFER,
-        size_of_val(&indices) as isize,
-        ptr!(indices),
-        gl::STATIC_DRAW,
-    );
+    let ib = index_buffer::IndexBuffer::new(&indices);
 
     let (vertex_shader, fragment_shader) = parse_shader("res/shaders/basic.shader");
     let shader = create_shader(vertex_shader.as_bytes(), fragment_shader.as_bytes());
@@ -213,7 +169,9 @@ unsafe fn main_()
         }
         r += inc;
 
+
         gl::Uniform4f(location, r, 0.3, 0.8, 1.0);
+        ib.bind();
         gl_call!(gl::DrawElements(gl::TRIANGLES, 6, gl::UNSIGNED_INT, std::ptr::null()));
 
         window.swap_buffers();
