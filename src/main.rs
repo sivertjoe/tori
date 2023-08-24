@@ -13,6 +13,9 @@ use glfw::Context;
 use renderer::*;
 
 mod index_buffer;
+mod vertex_array;
+
+mod vertex_buffer_layout;
 
 
 unsafe fn compile_shader(r#type: u32, src: &[u8]) -> u32
@@ -117,6 +120,10 @@ unsafe fn main_()
     glfw.make_context_current(Some(&window));
     glfw.set_swap_interval(glfw::SwapInterval::Sync(1));
 
+    glfw.window_hint(glfw::WindowHint::ContextVersionMajor(3));
+    glfw.window_hint(glfw::WindowHint::ContextVersionMinor(3));
+    glfw.window_hint(glfw::WindowHint::OpenGlProfile(glfw::OpenGlProfileHint::Core));
+
 
     #[rustfmt::skip]
     let positions = [
@@ -132,17 +139,18 @@ unsafe fn main_()
         2, 3, 0
     ];
 
-    let vb = vertex_buffer::VertexBuffer::new(&positions);
+    let mut vao = 0;
+    gl::GenVertexArrays(1, &mut vao);
+    gl::BindVertexArray(vao);
 
-    gl::EnableVertexAttribArray(0);
-    gl::VertexAttribPointer(
-        0,
-        2,
-        gl::FLOAT,
-        gl::FALSE,
-        2 * size_of::<f32>() as i32,
-        0 as *const c_void,
-    );
+    let vb = vertex_buffer::VertexBuffer::new(&positions);
+    let mut va = vertex_array::VertexArray::new();
+    let mut layout = vertex_buffer_layout::VertexBufferLayout::new();
+    layout.push(2, gl::FLOAT);
+    va.add_buffer(&vb, layout);
+
+
+
 
     let ib = index_buffer::IndexBuffer::new(&indices);
 
@@ -171,7 +179,10 @@ unsafe fn main_()
 
 
         gl::Uniform4f(location, r, 0.3, 0.8, 1.0);
+
+        va.bind();
         ib.bind();
+
         gl_call!(gl::DrawElements(gl::TRIANGLES, 6, gl::UNSIGNED_INT, std::ptr::null()));
 
         window.swap_buffers();
