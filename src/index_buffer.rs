@@ -7,6 +7,7 @@ pub struct IndexBuffer
     pub count:   u32,
 }
 
+#[allow(dead_code)]
 impl IndexBuffer
 {
     pub fn new(data: &[u32]) -> Self

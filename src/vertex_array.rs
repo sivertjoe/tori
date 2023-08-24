@@ -7,6 +7,7 @@ pub struct VertexArray
     renderer_id: u32,
 }
 
+#[allow(dead_code)]
 impl VertexArray
 {
     pub fn new() -> Self
