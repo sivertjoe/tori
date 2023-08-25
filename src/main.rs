@@ -67,12 +67,14 @@ unsafe fn main_()
     ib.unbind();
     shader.unbind();
 
+    let renderer = renderer::Renderer::new();
+
 
     let mut r = 0.0;
     let mut inc = 0.05;
     while !window.should_close()
     {
-        gl::Clear(gl::COLOR_BUFFER_BIT);
+        renderer.clear();
 
         if r > 1.0
         {
@@ -87,10 +89,7 @@ unsafe fn main_()
         shader.bind();
         shader.set_uniform_f4("u_Color\0", r, 0.3, 0.8, 1.0);
 
-        va.bind();
-        ib.bind();
-
-        gl_call!(gl::DrawElements(gl::TRIANGLES, 6, gl::UNSIGNED_INT, std::ptr::null()));
+        renderer.draw(&va, &ib, &shader);
 
         window.swap_buffers();
 
