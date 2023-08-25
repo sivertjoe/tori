@@ -42,6 +42,14 @@ impl Shader
         }
     }
 
+    pub fn set_uniform_1i(&self, name: &str, val: i32)
+    {
+        unsafe
+        {
+            gl::Uniform1i(self.get_uniform_location(name), val);
+        }
+    }
+
     pub fn set_uniform_f4(&self, name: &str, v1: f32, v2: f32, v3: f32, v4: f32)
     {
         unsafe

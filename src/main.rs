@@ -12,7 +12,7 @@ mod vertex_array;
 mod vertex_buffer_layout;
 
 mod shader;
-
+mod texture;
 
 unsafe fn main_()
 {
@@ -31,13 +31,16 @@ unsafe fn main_()
     glfw.window_hint(glfw::WindowHint::ContextVersionMinor(3));
     glfw.window_hint(glfw::WindowHint::OpenGlProfile(glfw::OpenGlProfileHint::Core));
 
+    gl::BlendFunc(gl::SRC_ALPHA, gl::ONE_MINUS_SRC_ALPHA);
+    gl::Enable(gl::BLEND);
+
 
     #[rustfmt::skip]
     let positions = [
-        -0.5, -0.5, 
-         0.5, -0.5, 
-         0.5, 0.5,
-        -0.5, 0.5_f32,
+        -0.5, -0.5, 0., 0.,  // bottom left
+         0.5, -0.5, 1., 0.,  // bottom right
+         0.5, 0.5, 1.0, 1.0, // top right
+        -0.5, 0.5_f32, 0., 1.
     ];
 
     #[rustfmt::skip]
@@ -54,13 +57,18 @@ unsafe fn main_()
     let mut va = vertex_array::VertexArray::new();
     let mut layout = vertex_buffer_layout::VertexBufferLayout::new();
     layout.push(2, gl::FLOAT);
+    layout.push(2, gl::FLOAT);
     va.add_buffer(&vb, layout);
 
     let ib = index_buffer::IndexBuffer::new(&indices);
 
     let shader = shader::Shader::new("res/shaders/basic.shader");
     shader.bind();
-    shader.set_uniform_f4("u_Color\0", 0.8, 0.3, 0.8, 1.0);
+    // shader.set_uniform_f4("u_Color\0", 0.8, 0.3, 0.8, 1.0);
+
+    let texture = texture::Texture::new("res/textures/bird.png");
+    texture.bind(None);
+    shader.set_uniform_1i("u_Texture\0", 0);
 
     va.unbind();
     vb.unbind();
@@ -86,8 +94,8 @@ unsafe fn main_()
         }
         r += inc;
 
-        shader.bind();
-        shader.set_uniform_f4("u_Color\0", r, 0.3, 0.8, 1.0);
+        // shader.bind();
+        // shader.set_uniform_f4("u_Color\0", r, 0.3, 0.8, 1.0);
 
         renderer.draw(&va, &ib, &shader);
 
