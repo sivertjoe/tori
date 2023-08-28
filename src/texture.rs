@@ -1,4 +1,6 @@
 use std::path::{Path, PathBuf};
+
+#[allow(dead_code)]
 pub struct Texture
 {
     renderer_id: u32,

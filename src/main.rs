@@ -49,10 +49,6 @@ unsafe fn main_()
         2, 3, 0
     ];
 
-    let mut vao = 0;
-    gl::GenVertexArrays(1, &mut vao);
-    gl::BindVertexArray(vao);
-
     let vb = vertex_buffer::VertexBuffer::new(&positions);
     let mut va = vertex_array::VertexArray::new();
     let mut layout = vertex_buffer_layout::VertexBufferLayout::new();
