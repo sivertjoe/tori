@@ -62,6 +62,19 @@ impl Shader
             gl::Uniform4f(location, v1, v2, v3, v4);
         }
     }
+
+    pub fn set_uniform_mat4f(&self, name: &str, matrix: &glm::Mat4)
+    {
+        unsafe
+        {
+            gl_call!(gl::UniformMatrix4fv(
+                self.get_uniform_location(name),
+                1,
+                gl::FALSE,
+                matrix.as_ptr() as *const f32,
+            ));
+        }
+    }
 }
 
 impl Shader
