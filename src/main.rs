@@ -4,7 +4,7 @@ mod renderer;
 mod util;
 mod vertex_buffer;
 
-use glfw::Context;
+use imgui_glfw_rs::{glfw, glfw::Context, imgui::im_str};
 
 mod index_buffer;
 mod vertex_array;
@@ -31,12 +31,18 @@ unsafe fn main_()
 
     gl::load_with(|s| window.get_proc_address(s));
 
-    glfw.make_context_current(Some(&window));
+    window.make_current();
+    window.set_all_polling(true);
     glfw.set_swap_interval(glfw::SwapInterval::Sync(1));
 
 
     gl::BlendFunc(gl::SRC_ALPHA, gl::ONE_MINUS_SRC_ALPHA);
     gl::Enable(gl::BLEND);
+
+
+    let mut imgui = imgui_glfw_rs::imgui::Context::create();
+    imgui.set_ini_filename(None);
+    let mut imgui_glfw = imgui_glfw_rs::ImguiGLFW::new(&mut imgui, &mut window);
 
 
 
@@ -64,18 +70,11 @@ unsafe fn main_()
 
     let proj = glm::ortho(0., W as f32, 0., H as f32, -1., 1.);
 
-    let view = glm::translate(&glm::identity::<f32, 4>(), &glm::vec3(-0., 0., 0.));
-
-    let model = glm::translate(&glm::identity::<f32, 4>(), &glm::vec3(200., 200., 0.));
-
-    let mvp = proj * view * model;
-
     let ib = index_buffer::IndexBuffer::new(&indices);
 
     let shader = shader::Shader::new("res/shaders/basic.shader");
     shader.bind();
     shader.set_uniform_f4("u_Color\0", 0.8, 0.3, 0.8, 1.0);
-    shader.set_uniform_mat4f("u_MVP\0", &mvp);
 
     let texture = texture::Texture::new("res/textures/bird.png");
     texture.bind(None);
@@ -88,6 +87,9 @@ unsafe fn main_()
 
     let renderer = renderer::Renderer::new();
 
+    let mut translation = glm::vec3(200., 200., 0.);
+    let ident = glm::identity::<f32, 4>();
+    let view = glm::translate(&ident, &glm::vec3(-100., 0., 0.));
 
     let mut r = 0.0;
     let mut inc = 0.05;
@@ -104,15 +106,28 @@ unsafe fn main_()
             inc = 0.05;
         }
         r += inc;
-
-        // shader.bind();
-        // shader.set_uniform_f4("u_Color\0", r, 0.3, 0.8, 1.0);
-
         renderer.draw(&va, &ib, &shader);
+        shader.bind();
+
+        let ident = glm::identity::<f32, 4>();
+        let model = glm::translate(&ident, &translation);
+        let mvp = proj * view * model;
+
+        shader.set_uniform_mat4f("u_MVP\0", &mvp);
+
+        let ui = imgui_glfw.frame(&mut window, &mut imgui);
+
+        ui.slider_float(im_str!("float"), translation.get_mut(0).unwrap(), 0., W as _)
+            .build();
+        imgui_glfw.draw(ui, &mut window);
 
         window.swap_buffers();
 
         glfw.poll_events();
+        for (_, event) in glfw::flush_messages(&_events)
+        {
+            imgui_glfw.handle_event(&mut imgui, &event);
+        }
     }
 }
 
