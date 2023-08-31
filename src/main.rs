@@ -48,10 +48,10 @@ unsafe fn main_()
 
     #[rustfmt::skip]
     let positions = [
-         50.0_f32,  50., 0., 0.,  // bottom left
-         100., 50., 1., 0.,  // bottom right
-         100., 100., 1.0, 1.0, // top right
-         50., 100., 0., 1.// top left
+         -50.0_f32,  -50., 0., 0.,  // bottom left
+         50., -50., 1., 0.,  // bottom right
+         50., 50., 1.0, 1.0, // top right
+         -50., 50., 0., 1.// top left
     ];
 
     #[rustfmt::skip]
@@ -88,37 +88,43 @@ unsafe fn main_()
     let renderer = renderer::Renderer::new();
 
     let mut translation = glm::vec3(200., 200., 0.);
+    let mut translation2 = glm::vec3(100., 300., 0.);
     let ident = glm::identity::<f32, 4>();
-    let view = glm::translate(&ident, &glm::vec3(-100., 0., 0.));
-
-    let mut r = 0.0;
-    let mut inc = 0.05;
+    let view = glm::translate(&ident, &glm::vec3(-0., 0., 0.));
     while !window.should_close()
     {
         renderer.clear();
 
-        if r > 1.0
-        {
-            inc = -0.05;
-        }
-        else if r < 0.0
-        {
-            inc = 0.05;
-        }
-        r += inc;
-        renderer.draw(&va, &ib, &shader);
+        let ident = glm::identity::<f32, 4>();
+
         shader.bind();
 
-        let ident = glm::identity::<f32, 4>();
-        let model = glm::translate(&ident, &translation);
-        let mvp = proj * view * model;
-
-        shader.set_uniform_mat4f("u_MVP\0", &mvp);
+        {
+            let model = glm::translate(&ident, &translation);
+            let mvp = proj * view * model;
+            shader.set_uniform_mat4f("u_MVP\0", &mvp);
+            renderer.draw(&va, &ib, &shader);
+        }
+        {
+            let model = glm::translate(&ident, &translation2);
+            let mvp = proj * view * model;
+            shader.set_uniform_mat4f("u_MVP\0", &mvp);
+            renderer.draw(&va, &ib, &shader);
+        }
 
         let ui = imgui_glfw.frame(&mut window, &mut imgui);
 
-        ui.slider_float(im_str!("float"), translation.get_mut(0).unwrap(), 0., W as _)
+        ui.slider_float(im_str!("width1"), translation.get_mut(0).unwrap(), 0., W as _)
             .build();
+
+        ui.slider_float(im_str!("height1"), translation.get_mut(1).unwrap(), 0., H as _)
+            .build();
+        ui.slider_float(im_str!("width"), translation2.get_mut(0).unwrap(), 0., W as _)
+            .build();
+
+        ui.slider_float(im_str!("height"), translation2.get_mut(1).unwrap(), 0., H as _)
+            .build();
+
         imgui_glfw.draw(ui, &mut window);
 
         window.swap_buffers();
