@@ -30,6 +30,7 @@ pub struct VertexBufferLayout
 }
 
 
+#[allow(dead_code)]
 impl VertexBufferLayout
 {
     pub fn new() -> Self

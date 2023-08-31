@@ -1,6 +1,8 @@
 use std::ffi::c_void;
 
-use crate::{vertex_buffer::VertexBuffer, vertex_buffer_layout::VertexBufferLayout};
+use crate::core::{
+    util::gl_call, vertex_buffer::VertexBuffer, vertex_buffer_layout::VertexBufferLayout,
+};
 
 pub struct VertexArray
 {

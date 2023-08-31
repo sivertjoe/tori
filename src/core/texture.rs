@@ -1,5 +1,7 @@
 use std::path::{Path, PathBuf};
 
+use crate::core::util::{gl_call, ptr};
+
 #[allow(dead_code)]
 pub struct Texture
 {
