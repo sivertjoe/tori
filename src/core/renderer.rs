@@ -4,7 +4,6 @@ use crate::core::{
 
 pub struct Renderer {}
 
-#[allow(dead_code)]
 impl Renderer
 {
     pub fn new() -> Self

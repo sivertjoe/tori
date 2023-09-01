@@ -2,7 +2,6 @@ use std::path::{Path, PathBuf};
 
 use crate::core::util::{gl_call, ptr};
 
-#[allow(dead_code)]
 pub struct Texture
 {
     renderer_id: u32,
@@ -14,28 +13,6 @@ pub struct Texture
     bpp:        i32,
 }
 
-use image::DynamicImage;
-
-fn get_bpp(image: &DynamicImage) -> i32
-{
-    let color_type = image.color();
-
-    // Determine the bpp based on the color type and number of color channels
-    match color_type
-    {
-        image::ColorType::L8 => 8,
-        image::ColorType::La8 => 16,
-        image::ColorType::Rgb8 => 24,
-        image::ColorType::Rgba8 => 32,
-        image::ColorType::L16 => 16,
-        image::ColorType::La16 => 32,
-        image::ColorType::Rgb16 => 48,
-        image::ColorType::Rgba16 => 64,
-        _ => unreachable!(),
-    }
-}
-
-#[allow(dead_code)]
 impl Texture
 {
     pub fn new<P: AsRef<Path>>(path: P) -> Self
@@ -51,7 +28,7 @@ impl Texture
 
             let width = image.width() as i32;
             let height = image.height() as i32;
-            let bpp = get_bpp(&image);
+            let bpp = image.color().channel_count() as _;
 
             // let local_buffer = image.as_bytes().to_vec().into_boxed_slice();
 

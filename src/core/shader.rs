@@ -1,4 +1,63 @@
-use std::{cell::RefCell, collections::HashMap};
+use std::{
+    cell::RefCell,
+    collections::HashMap,
+    ffi::{CStr, CString},
+};
+
+pub enum Cow<'a>
+{
+    CStr(&'a CStr),
+    CString(CString),
+}
+
+impl<'a> AsRef<CStr> for Cow<'a>
+{
+    fn as_ref(&self) -> &CStr
+    {
+        match self
+        {
+            Self::CString(c) => c,
+            Self::CStr(c) => c.as_ref(),
+        }
+    }
+}
+
+impl<'a> Cow<'a>
+{
+    fn into_c_string(&self) -> CString
+    {
+        match self
+        {
+            Self::CString(c) => c.clone(),
+            Self::CStr(c) => CString::from(*c),
+        }
+    }
+}
+
+impl<'a> From<&'a str> for Cow<'a>
+{
+    fn from(value: &'a str) -> Self
+    {
+        if let Ok(c) = CStr::from_bytes_with_nul(value.as_bytes())
+        {
+            Self::CStr(c)
+        }
+        else
+        {
+            let mut vec = value.as_bytes().to_vec();
+            vec.push(b'\0');
+
+            // Safety:
+            // I just added the nul byte.
+            let c = unsafe
+            {
+                CString::from_vec_with_nul_unchecked(vec)
+            };
+            Self::CString(c)
+        }
+    }
+}
+
 
 use crate::core::util::{gl_call, raw};
 
@@ -10,10 +69,9 @@ pub struct Shader
     // I dont want the shader to require being mutable.
     // I'll change it to a mutex if it ever crashes
     // the program
-    location_cache: RefCell<HashMap<String, i32>>,
+    location_cache: RefCell<HashMap<CString, i32>>,
 }
 
-#[allow(dead_code)]
 impl Shader
 {
     pub fn new<P: AsRef<std::path::Path>>(path: P) -> Self
@@ -69,26 +127,31 @@ impl Shader
     {
         unsafe
         {
-            gl_call!(gl::UniformMatrix4fv(
-                self.get_uniform_location(name),
-                1,
-                gl::FALSE,
-                matrix.as_ptr() as *const f32,
-            ));
+            let location = self.get_uniform_location(name);
+            if location == -1
+            {
+                println!("Warning: location {name} is -1");
+            }
+            gl_call!(gl::UniformMatrix4fv(location, 1, gl::FALSE, matrix.as_ptr() as *const f32,));
         }
     }
 }
 
 impl Shader
 {
-    fn get_uniform_location(&self, name: &str) -> i32
+    fn get_uniform_location<'a, C: Into<Cow<'a>>>(&self, name: C) -> i32
     {
         unsafe
         {
+            let s = name.into();
+            let key = s.into_c_string();
+
+            let name = s.as_ref();
+
             *self
                 .location_cache
                 .borrow_mut()
-                .entry(name.to_string())
+                .entry(key)
                 .or_insert_with(|| gl::GetUniformLocation(self.renderer_id, raw!(name)))
         }
     }
@@ -162,7 +225,6 @@ impl Shader
             gl::ShaderSource(id, 1, &ptr_i8, std::ptr::null());
             gl::CompileShader(id);
 
-
             let mut res = 0;
             gl::GetShaderiv(id, gl::COMPILE_STATUS, &mut res);
             if res as u8 == gl::FALSE
@@ -186,7 +248,7 @@ impl Shader
                     s
                 );
                 gl::DeleteShader(id);
-                panic!();
+                std::process::exit(1);
             }
 
             id

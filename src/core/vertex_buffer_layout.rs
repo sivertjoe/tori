@@ -5,7 +5,6 @@ pub struct VertexBufferElement
     pub normalized: u8,
 }
 
-#[allow(dead_code)]
 impl VertexBufferElement
 {
     pub fn size_of_type(&self) -> u32
@@ -30,7 +29,6 @@ pub struct VertexBufferLayout
 }
 
 
-#[allow(dead_code)]
 impl VertexBufferLayout
 {
     pub fn new() -> Self

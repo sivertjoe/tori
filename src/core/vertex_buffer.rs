@@ -8,7 +8,6 @@ pub struct VertexBuffer
     renderer_id: u32,
 }
 
-#[allow(dead_code)]
 impl VertexBuffer
 {
     pub fn new<U>(data: &[U]) -> Self

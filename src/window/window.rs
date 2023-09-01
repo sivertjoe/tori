@@ -3,16 +3,15 @@ use std::cell::RefCell;
 use crate::{core::renderer::Renderer, error::Error, graphics::drawable::Drawable};
 
 type Recv = std::sync::mpsc::Receiver<(f64, glfw::WindowEvent)>;
-#[allow(dead_code)]
 pub struct Window
 {
     glfw:     RefCell<glfw::Glfw>,
     window:   RefCell<glfw::Window>,
     events:   Recv,
     renderer: Renderer,
+    proj:     glm::Mat4,
 }
 
-#[allow(dead_code)]
 impl Window
 {
     pub fn new<S: AsRef<str>>(name: S, width: usize, height: usize) -> Result<Self, Error>
@@ -22,6 +21,7 @@ impl Window
         let (mut window, events) = glfw
             .create_window(width as _, height as _, name.as_ref(), glfw::WindowMode::Windowed)
             .ok_or(Error::Glfw)?;
+
 
         gl::load_with(|s| window.get_proc_address(s));
 
@@ -41,11 +41,14 @@ impl Window
 
         let renderer = Renderer::new();
 
+        let proj = glm::ortho(0., width as _, 0., height as _, -1., 1.);
+
         Ok(Self {
             glfw: RefCell::new(glfw),
             window: RefCell::new(window),
             events,
             renderer,
+            proj,
         })
     }
 
@@ -70,11 +73,24 @@ impl Window
         self.renderer.clear();
     }
 
+    pub fn swap_buffers(&self)
+    {
+        use glfw::Context;
+        self.window.borrow_mut().swap_buffers();
+    }
+
     pub fn draw<D: Drawable>(&self, d: D)
     {
         let va = d.vertex_array();
         let ib = d.index_buffer();
         let shader = d.shader();
+        let model = d.pos();
+
+        shader.bind();
+        let view = glm::translate(&glm::identity::<f32, 4>(), &glm::vec3(0., 0., 0.));
+
+        let mvp = self.proj * view * model;
+        shader.set_uniform_mat4f("u_MVP\0", &mvp);
 
         self.renderer.draw(&va, &ib, &shader);
     }
