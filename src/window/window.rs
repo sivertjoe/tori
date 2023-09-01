@@ -27,6 +27,7 @@ impl Window
 
         glfw.make_context_current(Some(&window));
         glfw.set_swap_interval(glfw::SwapInterval::Sync(1));
+        window.set_all_polling(true);
 
         glfw.window_hint(glfw::WindowHint::ContextVersionMajor(3));
         glfw.window_hint(glfw::WindowHint::ContextVersionMinor(3));
