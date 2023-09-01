@@ -61,6 +61,16 @@ impl Triangle
             pos,
         }
     }
+
+    pub fn set_color(&mut self, color: math::Vec4)
+    {
+        let g = |idx: usize| unsafe
+        {
+            *color.get_unchecked(idx) as f32
+        };
+        self.shader.bind();
+        self.shader.set_uniform_f4("u_Color\0", g(0), g(1), g(1), g(3));
+    }
 }
 
 use crate::graphics::drawable::Drawable;
