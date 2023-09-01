@@ -60,6 +60,11 @@ impl Window
         !self.window.borrow().should_close()
     }
 
+    pub fn set_open(&self, b: bool)
+    {
+        self.window.borrow_mut().set_should_close(b);
+    }
+
     pub fn clear(&self)
     {
         self.renderer.clear();
