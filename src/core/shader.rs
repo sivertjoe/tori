@@ -64,7 +64,6 @@ use crate::core::util::{gl_call, raw};
 pub struct Shader
 {
     renderer_id: u32,
-    _path:       String,
 
     // I dont want the shader to require being mutable.
     // I'll change it to a mutex if it ever crashes
@@ -80,9 +79,17 @@ impl Shader
         let shader = Self::create_shader(vertex_shader.as_bytes(), fragment_shader.as_bytes());
 
         Self {
-            renderer_id:    shader as _,
-            _path:          path.as_ref().to_str().unwrap().to_string(),
-            location_cache: RefCell::default(),
+            renderer_id: shader as _, location_cache: RefCell::default()
+        }
+    }
+
+    pub fn from_shader_string(s: &str) -> Self
+    {
+        let (vertex_shader, fragment_shader) = Self::parse_shader_from_str(s);
+        let shader = Self::create_shader(vertex_shader.as_bytes(), fragment_shader.as_bytes());
+
+        Self {
+            renderer_id: shader as _, location_cache: RefCell::default()
         }
     }
 
@@ -174,6 +181,43 @@ impl Shader
 
             program as _
         }
+    }
+
+    fn parse_shader_from_str(s: &str) -> (String, String)
+    {
+        let mut vertex = String::new();
+        let mut fragment = String::new();
+        let mut current = None;
+
+        for line in s.lines()
+        {
+            if line.starts_with("#shader")
+            {
+                if line.contains("vertex")
+                {
+                    current = Some(&mut vertex);
+                }
+                else if line.contains("fragment")
+                {
+                    current = Some(&mut fragment);
+                }
+                else
+                {
+                    panic!("Encountered something else..");
+                }
+                continue;
+            }
+            if let Some(shader) = current.as_mut()
+            {
+                shader.push_str(line);
+                shader.push('\n');
+            }
+        }
+
+        vertex.push('\0');
+        fragment.push('\0');
+
+        (vertex, fragment)
     }
 
     fn parse_shader<P: AsRef<std::path::Path>>(path: P) -> (String, String)
