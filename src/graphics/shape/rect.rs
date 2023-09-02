@@ -16,7 +16,7 @@ pub struct Rect
 
 impl Rect
 {
-    pub fn new(x: usize, y: usize, w: usize, h: usize) -> Self
+    pub fn new(x: isize, y: isize, w: usize, h: usize) -> Self
     {
         let x: f32 = x as _;
         let y: f32 = y as _;
