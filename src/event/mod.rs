@@ -1,1 +1,1 @@
-pub use glfw::{Key, WindowEvent as Event};
+pub use glfw::{Key, Modifiers, WindowEvent as Event};
