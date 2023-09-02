@@ -6,3 +6,5 @@ pub mod event;
 pub mod graphics;
 pub mod math;
 pub mod window;
+
+mod util;

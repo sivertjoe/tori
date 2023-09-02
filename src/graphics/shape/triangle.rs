@@ -1,9 +1,8 @@
 use crate::{
     core::{index_buffer, shader, vertex_array, vertex_buffer, vertex_buffer_layout},
     math::{self, Point},
+    util::{get_shader, ShaderProgram::Basic},
 };
-
-const DATA: &'static str = include_str!("../../../res/shaders/shape.color.shader");
 
 pub struct Triangle
 {
@@ -43,7 +42,7 @@ impl Triangle
         layout.push(2, gl::FLOAT);
         va.add_buffer(&vb, layout);
 
-        let shader = shader::Shader::from_shader_string(DATA);
+        let shader = shader::Shader::from_shader_string(get_shader(Basic));
         shader.bind();
         shader.set_uniform_f4("u_Color\0", 1., 0., 0., 1.0);
 
