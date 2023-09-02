@@ -73,6 +73,24 @@ impl Rect
         self.shader.bind();
         self.shader.set_uniform_f4("u_Color\0", g(0), g(1), g(1), g(3));
     }
+
+    pub fn set_pos(&mut self, pos: math::DVec)
+    {
+        self.pos[12] = pos[0] as _;
+        self.pos[13] = pos[1] as _;
+    }
+
+    pub fn get_pos(&self) -> math::DVec
+    {
+        #[rustfmt::skip]
+        /*  0   4    8  12
+            1   5    9  13
+            2   6   10  14
+            3   7   11  15 |*/
+        let x = self.pos[12];
+        let y = self.pos[13];
+        math::DVec::new(x as _, y as _)
+    }
 }
 
 use crate::graphics::drawable::Drawable;
