@@ -6,6 +6,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>>
     {
         let _ = window.poll_events();
         window.clear();
+        window.swap_buffers();
     }
 
     Ok(())
