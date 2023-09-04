@@ -1,6 +1,9 @@
 use std::path::{Path, PathBuf};
 
-use crate::core::util::{gl_call, ptr};
+use crate::{
+    core::util::{gl_call, ptr},
+    error::Error,
+};
 
 pub struct Texture
 {
@@ -8,14 +11,14 @@ pub struct Texture
     path:        PathBuf,
 
     // local_buffer: Box<[u8]>,
-    pub width:  i32,
-    pub height: i32,
-    bpp:        i32,
+    pub(crate) width:  i32,
+    pub(crate) height: i32,
+    bpp:               i32,
 }
 
 impl Texture
 {
-    pub fn new<P: AsRef<Path>>(path: P) -> Self
+    pub fn new<P: AsRef<Path>>(path: P) -> Result<Self, Error>
     {
         let mut renderer_id = 0;
         unsafe
@@ -23,14 +26,12 @@ impl Texture
             gl::GenTextures(1, &mut renderer_id);
             gl::BindTexture(gl::TEXTURE_2D, renderer_id);
 
-            let mut image = image::open(path.as_ref()).unwrap();
+            let mut image = image::open(path.as_ref())?;
             image::imageops::flip_vertical_in_place(&mut image);
 
             let width = image.width() as i32;
             let height = image.height() as i32;
             let bpp = image.color().channel_count() as _;
-
-            // let local_buffer = image.as_bytes().to_vec().into_boxed_slice();
 
             gl_call!(gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MIN_FILTER, gl::LINEAR as _));
             gl_call!(gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MAG_FILTER, gl::LINEAR as _));
@@ -52,14 +53,13 @@ impl Texture
             ));
             gl_call!(gl::BindTexture(gl::TEXTURE_2D, 0));
 
-            Self {
+            Ok(Self {
                 renderer_id,
                 path: path.as_ref().to_path_buf(),
-                // local_buffer,
                 width,
                 height,
                 bpp,
-            }
+            })
         }
     }
 
