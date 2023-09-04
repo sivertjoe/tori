@@ -86,6 +86,12 @@ impl Window
         let shader = d.shader();
         let model = d.pos();
 
+        let texture = d.texture();
+        if let Some(ref t) = texture
+        {
+            t.bind(None);
+        }
+
         shader.bind();
         let view = glm::translate(&glm::identity::<f32, 4>(), &glm::vec3(0., 0., 0.));
 
@@ -93,5 +99,10 @@ impl Window
         shader.set_uniform_mat4f("u_MVP\0", &mvp);
 
         self.renderer.draw(&va, &ib, &shader);
+
+        if let Some(ref t) = texture
+        {
+            t.unbind();
+        }
     }
 }

@@ -98,4 +98,9 @@ impl Drawable for Rect
     {
         self.pos.pos.clone()
     }
+
+    fn texture(&self) -> Option<&crate::core::texture::Texture>
+    {
+        None
+    }
 }

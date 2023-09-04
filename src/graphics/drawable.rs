@@ -5,6 +5,7 @@ pub trait Drawable
     fn index_buffer(&self) -> &index_buffer::IndexBuffer;
     fn shader(&self) -> &shader::Shader;
     fn pos(&self) -> math::Mat4;
+    fn texture(&self) -> Option<&texture::Texture>;
 }
 
 impl<T> Drawable for &T
@@ -29,5 +30,10 @@ where
     fn index_buffer(&self) -> &index_buffer::IndexBuffer
     {
         (*self).index_buffer()
+    }
+
+    fn texture(&self) -> Option<&texture::Texture>
+    {
+        (*self).texture()
     }
 }

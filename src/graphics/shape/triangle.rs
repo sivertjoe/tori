@@ -97,4 +97,9 @@ impl Drawable for Triangle
     {
         self.pos.pos.clone()
     }
+
+    fn texture(&self) -> Option<&crate::core::texture::Texture>
+    {
+        None
+    }
 }
