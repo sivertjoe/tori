@@ -75,6 +75,11 @@ impl<'tex> Sprite<'tex>
         }
     }
 
+    pub fn get_size(&self) -> math::UVec2
+    {
+        self.size
+    }
+
     pub fn set_size(&mut self, w: isize, h: isize)
     {
         let w = w as _;
@@ -97,6 +102,9 @@ impl<'tex> Sprite<'tex>
         va.unbind();
         self.vb = vb;
         self.va = va;
+
+        self.size[0] = w as _;
+        self.size[1] = h as _;
     }
 
     pub fn make_sprite_sheet(&mut self, num_cols: u32, num_rows: u32) -> SpriteSheet
