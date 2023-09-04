@@ -4,7 +4,7 @@ use crate::{core, error::Error};
 
 pub struct Texture
 {
-    texture: core::texture::Texture,
+    pub(crate) texture: core::texture::Texture,
 }
 
 impl Texture

@@ -122,10 +122,6 @@ impl Shader
         unsafe
         {
             let location = self.get_uniform_location(name);
-            if location == -1
-            {
-                println!("Warning: location {name} is -1");
-            }
             gl::Uniform4f(location, v1, v2, v3, v4);
         }
     }
@@ -135,11 +131,25 @@ impl Shader
         unsafe
         {
             let location = self.get_uniform_location(name);
-            if location == -1
-            {
-                println!("Warning: location {name} is -1");
-            }
             gl_call!(gl::UniformMatrix4fv(location, 1, gl::FALSE, matrix.as_ptr() as *const f32,));
+        }
+    }
+
+    pub fn set_uniform_1u(&self, name: &str, val: u32)
+    {
+        unsafe
+        {
+            let location = self.get_uniform_location(name);
+            gl::Uniform1ui(location, val);
+        }
+    }
+
+    pub fn set_uniform_1f(&self, name: &str, val: f32)
+    {
+        unsafe
+        {
+            let location = self.get_uniform_location(name);
+            gl::Uniform1f(location, val);
         }
     }
 }
@@ -148,9 +158,9 @@ impl Shader
 {
     fn get_uniform_location<'a, C: Into<Cow<'a>>>(&self, name: C) -> i32
     {
-        unsafe
+        let s = name.into();
+        let location = unsafe
         {
-            let s = name.into();
             let key = s.into_c_string();
 
             let name = s.as_ref();
@@ -160,7 +170,8 @@ impl Shader
                 .borrow_mut()
                 .entry(key)
                 .or_insert_with(|| gl::GetUniformLocation(self.renderer_id, raw!(name)))
-        }
+        };
+        location
     }
 
     fn create_shader(vertex_shader: &[u8], fragment_shader: &[u8]) -> i32
