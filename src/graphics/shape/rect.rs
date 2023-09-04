@@ -1,5 +1,6 @@
 use crate::{
     core::{index_buffer, shader, vertex_array, vertex_buffer, vertex_buffer_layout},
+    graphics::position::Position,
     math,
     util::{get_shader, ShaderProgram::Basic},
 };
@@ -8,10 +9,10 @@ const DATA: &'static str = include_str!("../../../res/shaders/shape.color.shader
 
 pub struct Rect
 {
-    shader: shader::Shader,
-    va:     vertex_array::VertexArray,
-    ib:     index_buffer::IndexBuffer,
-    pos:    math::Mat4,
+    shader:  shader::Shader,
+    va:      vertex_array::VertexArray,
+    ib:      index_buffer::IndexBuffer,
+    pub pos: Position,
 }
 
 impl Rect
@@ -24,10 +25,10 @@ impl Rect
         let h: f32 = h as _;
         #[rustfmt::skip]
         let positions: [f32; 16] = [
-             x, y, 0., 0.,  // bottom left
-             x + w, y, 1., 0.,  // bottom right
-             x + w, y + h, 1.0, 1.0, // top right
-             x, y + h, 0., 1.// top left
+             0., 0., 0., 0.,  // bottom left
+             w, 0., 1., 0.,  // bottom right
+             w, h, 1.0, 1.0, // top right
+             0., h, 0., 1.// top left
         ];
 
         #[rustfmt::skip]
@@ -54,7 +55,7 @@ impl Rect
         ib.unbind();
         shader.unbind();
 
-        let pos = glm::translate(&glm::identity::<f32, 4>(), &glm::vec3(0., 0., 0.));
+        let pos = Position::new(math::DVec::new(x as _, y as _));
 
         Self {
             shader,
@@ -72,24 +73,6 @@ impl Rect
         };
         self.shader.bind();
         self.shader.set_uniform_f4("u_Color\0", g(0), g(1), g(1), g(3));
-    }
-
-    pub fn set_pos(&mut self, pos: math::DVec)
-    {
-        self.pos[12] = pos[0] as _;
-        self.pos[13] = pos[1] as _;
-    }
-
-    pub fn get_pos(&self) -> math::DVec
-    {
-        #[rustfmt::skip]
-        /*  0   4    8  12
-            1   5    9  13
-            2   6   10  14
-            3   7   11  15 |*/
-        let x = self.pos[12];
-        let y = self.pos[13];
-        math::DVec::new(x as _, y as _)
     }
 }
 
@@ -113,6 +96,6 @@ impl Drawable for Rect
 
     fn pos(&self) -> glm::Mat4
     {
-        self.pos.clone()
+        self.pos.pos.clone()
     }
 }
