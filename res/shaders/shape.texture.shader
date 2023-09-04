@@ -21,18 +21,14 @@ in vec2 v_TexCoord;
 
 uniform sampler2D u_Texture;
 
-// const uint u_Time = 0;
-// const float u_Cols = 8.0;
-// const float u_Rows   = 2.0;
-// const uint u_Num_Sprites = 16;
-uniform uint u_Time = 0;
+uniform uint u_Idx = 0;
 uniform float u_Cols = 1.0;
 uniform float u_Rows   = 1.0;
 uniform uint u_Num_Sprites = 1;
 
 void main()
 {
-    uint sprite_idx = u_Time % u_Num_Sprites;
+    uint sprite_idx = u_Idx % u_Num_Sprites;
     vec2 pos = vec2(sprite_idx % int(u_Cols), int(sprite_idx / u_Cols));
     
     vec4 fragColor = texture(u_Texture, vec2((v_TexCoord.x / u_Cols) + pos.x * (1.0 / u_Cols),

@@ -54,7 +54,7 @@ impl<'tex> Sprite<'tex>
 
         shader.set_uniform_1i("u_Texture\0", 0);
 
-        shader.set_uniform_1u("u_Time", 0);
+        shader.set_uniform_1u("u_Idx", 0);
         shader.set_uniform_1u("u_Num_Sprites", 1);
         shader.set_uniform_1f("u_Cols", 1.0);
         shader.set_uniform_1f("u_Rows", 1.0);
@@ -103,7 +103,7 @@ impl<'tex> Sprite<'tex>
     {
         let shader = &self.shader;
         shader.bind();
-        shader.set_uniform_1u("u_Time", 0);
+        shader.set_uniform_1u("u_Idx", 0);
         shader.set_uniform_1u("u_Num_Sprites", num_cols * num_rows);
         shader.set_uniform_1f("u_Cols", num_cols as _);
         shader.set_uniform_1f("u_Rows", num_rows as _);
@@ -152,7 +152,7 @@ impl SpriteSheet
     pub fn set_idx(&mut self, idx: u32)
     {
         self.shader.bind();
-        self.shader.set_uniform_1u("u_Time\0", idx);
+        self.shader.set_uniform_1u("u_Idx\0", idx);
         self.shader.unbind();
         self.idx = idx;
     }
