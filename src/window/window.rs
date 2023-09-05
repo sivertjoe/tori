@@ -58,6 +58,16 @@ impl Window
         glfw::flush_messages(&self.events).map(|e| e.1)
     }
 
+    pub fn is_key_pressed(&self, key: crate::event::Key) -> bool
+    {
+        use glfw::Action as A;
+        match self.window.borrow().get_key(key)
+        {
+            A::Press | A::Repeat => true,
+            A::Release => false,
+        }
+    }
+
     pub fn is_open(&self) -> bool
     {
         !self.window.borrow().should_close()
