@@ -1,7 +1,6 @@
 use crate::{
     core::{index_buffer, shader, vertex_array, vertex_buffer, vertex_buffer_layout},
-    graphics::position::Position,
-    math::{self, Point},
+    math::{self, Vec2},
     util::{get_shader, ShaderProgram::Basic},
 };
 
@@ -10,19 +9,19 @@ pub struct Triangle
     shader:  shader::Shader,
     va:      vertex_array::VertexArray,
     ib:      index_buffer::IndexBuffer,
-    pub pos: Position,
+    pub pos: Vec2,
 }
 
 impl Triangle
 {
-    pub fn new(p1: Point, p2: Point, p3: Point) -> Self
+    pub fn new(p1: Vec2, p2: Vec2, p3: Vec2) -> Self
     {
         // SAFETY:
         // points cannot be created without calling
         // something like `new`.
-        let g = |p: Point, idx: usize| unsafe
+        let g = |p: Vec2, idx: usize| unsafe
         {
-            *p.get_unchecked(idx) as f32
+            *p.get_unchecked(idx)
         };
 
         #[rustfmt::skip]
@@ -49,7 +48,7 @@ impl Triangle
 
         let ib = index_buffer::IndexBuffer::new(&indices);
 
-        let pos = Position::new(math::DVec::new(0, 0));
+        let pos = Vec2::new(0.0, 0.0);
 
         va.unbind();
         vb.unbind();
@@ -95,7 +94,8 @@ impl Drawable for Triangle
 
     fn pos(&self) -> glm::Mat4
     {
-        self.pos.pos.clone()
+        let pos = glm::identity();
+        glm::translate(&pos, &glm::vec3(pos[0], pos[1], 0.0))
     }
 
     fn texture(&self) -> Option<&crate::core::texture::Texture>

@@ -1,6 +1,5 @@
 use crate::{
     core::{index_buffer, shader, vertex_array, vertex_buffer, vertex_buffer_layout},
-    graphics::position::Position,
     math,
     util::{get_shader, ShaderProgram::Basic},
 };
@@ -12,17 +11,13 @@ pub struct Rect
     shader:  shader::Shader,
     va:      vertex_array::VertexArray,
     ib:      index_buffer::IndexBuffer,
-    pub pos: Position,
+    pub pos: math::Vec2,
 }
 
 impl Rect
 {
-    pub fn new(x: isize, y: isize, w: usize, h: usize) -> Self
+    pub fn new(x: f32, y: f32, w: f32, h: f32) -> Self
     {
-        let x: f32 = x as _;
-        let y: f32 = y as _;
-        let w: f32 = w as _;
-        let h: f32 = h as _;
         #[rustfmt::skip]
         let positions: [f32; 16] = [
              0., 0., 0., 0.,  // bottom left
@@ -55,7 +50,7 @@ impl Rect
         ib.unbind();
         shader.unbind();
 
-        let pos = Position::new(math::DVec::new(x as _, y as _));
+        let pos = math::vec2(x, y);
 
         Self {
             shader,
@@ -96,7 +91,8 @@ impl Drawable for Rect
 
     fn pos(&self) -> glm::Mat4
     {
-        self.pos.pos.clone()
+        let pos = glm::identity();
+        glm::translate(&pos, &glm::vec3(pos[0], pos[1], 0.0))
     }
 
     fn texture(&self) -> Option<&crate::core::texture::Texture>

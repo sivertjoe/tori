@@ -2,10 +2,11 @@ use std::rc::Rc;
 
 use crate::{
     core::*,
-    graphics::{position::Position, texture},
+    graphics::{texture, entity::Entity},
     math,
     util::{get_shader, ShaderProgram::Texture},
 };
+
 pub struct Sprite<'texture>
 {
     va:     vertex_array::VertexArray,
@@ -13,8 +14,7 @@ pub struct Sprite<'texture>
     ib:     index_buffer::IndexBuffer,
     shader: Rc<shader::Shader>,
 
-    pub pos: Position,
-    size:    math::UVec2,
+    entity: Entity,
     texture: &'texture texture::Texture,
 }
 
@@ -69,42 +69,8 @@ impl<'tex> Sprite<'tex>
             ib,
             shader: Rc::new(shader),
             texture,
-
-            pos: Position::new(math::DVec::new(0, 0)),
-            size: math::UVec2::new(w as _, h as _),
+            entity: Entity::new(math::vec2(w, h), math::vec2(0.0, 0.0), 0.0),
         }
-    }
-
-    pub fn get_size(&self) -> math::UVec2
-    {
-        self.size
-    }
-
-    pub fn set_size(&mut self, w: isize, h: isize)
-    {
-        let w = w as _;
-        let h = h as _;
-        #[rustfmt::skip]
-        let positions: [f32; 16] = [
-             0., 0., 0., 0., // bottom left
-             w,  0., 1., 0., // bottom right
-             w,  h,  1., 1., // top right
-             0., h,  0., 1.  // top left
-        ];
-        let vb = vertex_buffer::VertexBuffer::new(&positions);
-        let mut va = vertex_array::VertexArray::new();
-        let mut layout = vertex_buffer_layout::VertexBufferLayout::new();
-        layout.push(2, gl::FLOAT);
-        layout.push(2, gl::FLOAT);
-        va.add_buffer(&vb, layout);
-
-        vb.unbind();
-        va.unbind();
-        self.vb = vb;
-        self.va = va;
-
-        self.size[0] = w as _;
-        self.size[1] = h as _;
     }
 
     pub fn make_sprite_sheet(&mut self, num_cols: u32, num_rows: u32) -> SpriteSheet
@@ -118,10 +84,10 @@ impl<'tex> Sprite<'tex>
         shader.unbind();
 
 
-        let w = self.size[0] / num_cols;
-        let h = self.size[1] / num_rows;
+        let w = self.entity.size[0] / num_cols as f32;
+        let h = self.entity.size[1] / num_rows as f32;
 
-        self.set_size(w as _, h as _);
+        self.entity.set_size(math::vec2(w, h));
 
         SpriteSheet {
             shader: Rc::clone(&self.shader),
@@ -177,7 +143,9 @@ impl<'t> Drawable for Sprite<'t>
 
     fn pos(&self) -> math::Mat4
     {
-        self.pos.pos.clone()
+        //let pos = glm::identity();
+        //glm::translate(&pos, &glm::vec3(pos[0], pos[1], 0.0))
+        todo!()
     }
 
     fn shader(&self) -> &shader::Shader
