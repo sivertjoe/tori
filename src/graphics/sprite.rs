@@ -14,8 +14,8 @@ pub struct Sprite<'texture>
     ib:     index_buffer::IndexBuffer,
     shader: Rc<shader::Shader>,
 
-    entity:  Entity,
-    texture: &'texture texture::Texture,
+    pub entity: Entity,
+    texture:    &'texture texture::Texture,
 }
 
 impl<'tex> Sprite<'tex>
@@ -69,7 +69,7 @@ impl<'tex> Sprite<'tex>
             ib,
             shader: Rc::new(shader),
             texture,
-            entity: Entity::new(math::vec2(w, h), math::vec2(0.0, 0.0), 0.0),
+            entity: Entity::new(math::vec2(1.0, 1.0), math::vec2(0.0, 0.0), 0.0),
         }
     }
 
@@ -83,13 +83,8 @@ impl<'tex> Sprite<'tex>
         shader.set_uniform_1f("u_Rows", num_rows as _);
         shader.unbind();
 
-
-        let w = self.entity.size[0] / num_cols as f32;
-        let h = self.entity.size[1] / num_rows as f32;
-
-        self.entity.size[0] = w;
-        self.entity.size[1] = h;
-
+        self.entity.scale[0] /= num_cols as f32;
+        self.entity.scale[1] /= num_rows as f32;
 
         SpriteSheet {
             shader: Rc::clone(&self.shader),
@@ -105,7 +100,7 @@ pub struct SpriteSheet
     shader:   Rc<shader::Shader>,
     num_cols: u32,
     num_rows: u32,
-    idx:      u32,
+    pub idx:  u32,
 }
 
 impl SpriteSheet
@@ -145,7 +140,12 @@ impl<'t> Drawable for Sprite<'t>
 
     fn model(&self) -> math::Mat4
     {
-        self.entity.get_model()
+        let t = &self.texture.texture;
+
+        let w = self.entity.scale[0] * t.width as f32;
+        let h = self.entity.scale[1] * t.height as f32;
+
+        self.entity.get_model([w, h])
     }
 
     fn shader(&self) -> &shader::Shader
