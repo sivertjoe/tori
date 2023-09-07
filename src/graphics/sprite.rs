@@ -2,7 +2,7 @@ use std::rc::Rc;
 
 use crate::{
     core::*,
-    graphics::{texture, entity::Entity},
+    graphics::{entity::Entity, texture},
     math,
     util::{get_shader, ShaderProgram::Texture},
 };
@@ -14,7 +14,7 @@ pub struct Sprite<'texture>
     ib:     index_buffer::IndexBuffer,
     shader: Rc<shader::Shader>,
 
-    entity: Entity,
+    entity:  Entity,
     texture: &'texture texture::Texture,
 }
 
@@ -27,10 +27,10 @@ impl<'tex> Sprite<'tex>
         let h = core.height as _;
         #[rustfmt::skip]
         let positions: [f32; 16] = [
-             0., 0., 0., 0., // bottom left
-             w,  0., 1., 0., // bottom right
-             w,  h,  1., 1., // top right
-             0., h,  0., 1.  // top left
+            0., 0., 0., 0., // bottom left
+            w,  0., 1., 0., // bottom right
+            w,  h,  1., 1., // top right
+            0., h,  0., 1.  // top left
         ];
 
         #[rustfmt::skip]
@@ -87,7 +87,9 @@ impl<'tex> Sprite<'tex>
         let w = self.entity.size[0] / num_cols as f32;
         let h = self.entity.size[1] / num_rows as f32;
 
-        self.entity.set_size(math::vec2(w, h));
+        self.entity.size[0] = w;
+        self.entity.size[1] = h;
+
 
         SpriteSheet {
             shader: Rc::clone(&self.shader),
@@ -141,11 +143,9 @@ impl<'t> Drawable for Sprite<'t>
         Some(self.texture.get_core())
     }
 
-    fn pos(&self) -> math::Mat4
+    fn model(&self) -> math::Mat4
     {
-        //let pos = glm::identity();
-        //glm::translate(&pos, &glm::vec3(pos[0], pos[1], 0.0))
-        todo!()
+        self.entity.get_model()
     }
 
     fn shader(&self) -> &shader::Shader

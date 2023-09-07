@@ -89,7 +89,7 @@ impl Drawable for Rect
         &self.ib
     }
 
-    fn pos(&self) -> glm::Mat4
+    fn model(&self) -> glm::Mat4
     {
         let pos = glm::identity();
         glm::translate(&pos, &glm::vec3(pos[0], pos[1], 0.0))

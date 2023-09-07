@@ -4,7 +4,7 @@ pub trait Drawable
     fn vertex_array(&self) -> &vertex_array::VertexArray;
     fn index_buffer(&self) -> &index_buffer::IndexBuffer;
     fn shader(&self) -> &shader::Shader;
-    fn pos(&self) -> math::Mat4;
+    fn model(&self) -> math::Mat4;
     fn texture(&self) -> Option<&texture::Texture>;
 }
 
@@ -12,9 +12,9 @@ impl<T> Drawable for &T
 where
     T: Drawable,
 {
-    fn pos(&self) -> math::Mat4
+    fn model(&self) -> math::Mat4
     {
-        (*self).pos()
+        (*self).model()
     }
 
     fn shader(&self) -> &shader::Shader

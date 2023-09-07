@@ -94,7 +94,7 @@ impl Window
         let va = d.vertex_array();
         let ib = d.index_buffer();
         let shader = d.shader();
-        let model = d.pos();
+        let model = d.model();
 
         let texture = d.texture();
         if let Some(t) = texture
