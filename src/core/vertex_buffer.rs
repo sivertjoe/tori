@@ -1,5 +1,3 @@
-use std::mem::size_of;
-
 use crate::core::util::{gl_call, ptr};
 
 
@@ -19,7 +17,7 @@ impl VertexBuffer
             gl_call!(gl::BindBuffer(gl::ARRAY_BUFFER, renderer_id));
             gl_call!(gl::BufferData(
                 gl::ARRAY_BUFFER,
-                (size_of::<U>() * data.len()) as isize,
+                std::mem::size_of_val(data) as isize,
                 ptr!(data),
                 gl::STATIC_DRAW,
             ));

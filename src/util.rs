@@ -1,4 +1,4 @@
-const SHADERS: [&'static str; 2] = [
+const SHADERS: [&str; 2] = [
     include_str!("../res/shaders/shape.color.shader"),
     include_str!("../res/shaders/shape.texture.shader"),
 ];

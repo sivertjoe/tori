@@ -97,7 +97,7 @@ impl Window
         let model = d.pos();
 
         let texture = d.texture();
-        if let Some(ref t) = texture
+        if let Some(t) = texture
         {
             t.bind(None);
         }
@@ -108,9 +108,9 @@ impl Window
         let mvp = self.proj * view * model;
         shader.set_uniform_mat4f("u_MVP\0", &mvp);
 
-        self.renderer.draw(&va, &ib, &shader);
+        self.renderer.draw(va, ib, shader);
 
-        if let Some(ref t) = texture
+        if let Some(t) = texture
         {
             t.unbind();
         }

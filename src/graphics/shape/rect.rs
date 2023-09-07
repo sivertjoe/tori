@@ -4,7 +4,7 @@ use crate::{
     util::{get_shader, ShaderProgram::Basic},
 };
 
-const DATA: &'static str = include_str!("../../../res/shaders/shape.color.shader");
+const DATA: &str = include_str!("../../../res/shaders/shape.color.shader");
 
 pub struct Rect
 {
@@ -64,7 +64,7 @@ impl Rect
     {
         let g = |idx: usize| unsafe
         {
-            *color.get_unchecked(idx) as f32
+            *color.get_unchecked(idx)
         };
         self.shader.bind();
         self.shader.set_uniform_f4("u_Color\0", g(0), g(1), g(1), g(3));

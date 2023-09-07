@@ -6,8 +6,8 @@ use std::{
 
 pub enum Cow<'a>
 {
-    CStr(&'a CStr),
-    CString(CString),
+    Borrow(&'a CStr),
+    Owned(CString),
 }
 
 impl<'a> AsRef<CStr> for Cow<'a>
@@ -16,8 +16,8 @@ impl<'a> AsRef<CStr> for Cow<'a>
     {
         match self
         {
-            Self::CString(c) => c,
-            Self::CStr(c) => c.as_ref(),
+            Self::Owned(c) => c,
+            Self::Borrow(c) => c,
         }
     }
 }
@@ -28,8 +28,8 @@ impl<'a> Cow<'a>
     {
         match self
         {
-            Self::CString(c) => c.clone(),
-            Self::CStr(c) => CString::from(*c),
+            Self::Owned(c) => c.clone(),
+            Self::Borrow(c) => CString::from(*c),
         }
     }
 }
@@ -40,7 +40,7 @@ impl<'a> From<&'a str> for Cow<'a>
     {
         if let Ok(c) = CStr::from_bytes_with_nul(value.as_bytes())
         {
-            Self::CStr(c)
+            Self::Borrow(c)
         }
         else
         {
@@ -53,7 +53,7 @@ impl<'a> From<&'a str> for Cow<'a>
             {
                 CString::from_vec_with_nul_unchecked(vec)
             };
-            Self::CString(c)
+            Self::Owned(c)
         }
     }
 }
@@ -131,7 +131,7 @@ impl Shader
         unsafe
         {
             let location = self.get_uniform_location(name);
-            gl_call!(gl::UniformMatrix4fv(location, 1, gl::FALSE, matrix.as_ptr() as *const f32,));
+            gl_call!(gl::UniformMatrix4fv(location, 1, gl::FALSE, matrix.as_ptr(),));
         }
     }
 

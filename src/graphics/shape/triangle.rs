@@ -67,7 +67,7 @@ impl Triangle
     {
         let g = |idx: usize| unsafe
         {
-            *color.get_unchecked(idx) as f32
+            *color.get_unchecked(idx)
         };
         self.shader.bind();
         self.shader.set_uniform_f4("u_Color\0", g(0), g(1), g(1), g(3));
