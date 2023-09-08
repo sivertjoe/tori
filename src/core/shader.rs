@@ -126,6 +126,15 @@ impl Shader
         }
     }
 
+    pub fn set_uniform_f3(&self, name: &str, v1: f32, v2: f32, v3: f32)
+    {
+        unsafe
+        {
+            let location = self.get_uniform_location(name);
+            gl::Uniform3f(location, v1, v2, v3);
+        }
+    }
+
     pub fn set_uniform_mat4f(&self, name: &str, matrix: &glm::Mat4)
     {
         unsafe

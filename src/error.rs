@@ -8,6 +8,7 @@ pub enum Error
     Image(#[from] image::ImageError),
     Io(#[from] std::io::Error),
     Font(#[from] freetype::Error),
+    NoFont,
 }
 
 impl std::fmt::Display for Error

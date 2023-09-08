@@ -61,6 +61,7 @@ impl VertexArray
                 offset += elem.count * elem.size_of_type();
             }
         }
+        self.unbind();
     }
 }
 
