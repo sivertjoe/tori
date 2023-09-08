@@ -1,11 +1,13 @@
-use image::ImageError;
+use thiserror::Error;
 
-#[derive(Debug)]
+#[derive(Error, Debug)]
 pub enum Error
 {
-    Init(glfw::InitError),
+    Init(#[from] glfw::InitError),
     Glfw,
-    Image(ImageError),
+    Image(#[from] image::ImageError),
+    Io(#[from] std::io::Error),
+    Font(#[from] freetype::Error),
 }
 
 impl std::fmt::Display for Error
@@ -13,23 +15,5 @@ impl std::fmt::Display for Error
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result
     {
         write!(f, "{:?}", self)
-    }
-}
-
-impl std::error::Error for Error {}
-
-impl From<glfw::InitError> for Error
-{
-    fn from(value: glfw::InitError) -> Self
-    {
-        Error::Init(value)
-    }
-}
-
-impl From<ImageError> for Error
-{
-    fn from(value: ImageError) -> Self
-    {
-        Error::Image(value)
     }
 }
