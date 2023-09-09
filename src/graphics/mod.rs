@@ -1,7 +1,7 @@
 pub mod drawable;
+pub mod entity;
+pub(crate) mod freetype;
 pub mod shape;
 pub mod sprite;
-pub mod texture;
-pub mod entity;
 pub mod text;
-pub(crate) mod freetype;
+pub mod texture;

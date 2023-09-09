@@ -1,9 +1,13 @@
 use std::cell::RefCell;
 
-use crate::{core::renderer::Renderer, error::Error, graphics::drawable::Drawable};
-
-use crate::graphics::freetype::{Freetype, Handle};
-use crate::math;
+use crate::{
+    core::renderer::Renderer,
+    error::Error,
+    graphics::{
+        drawable::Drawable,
+        freetype::{Freetype, Handle},
+    },
+};
 
 type Recv = std::sync::mpsc::Receiver<(f64, glfw::WindowEvent)>;
 pub struct Window
@@ -57,12 +61,14 @@ impl Window
         })
     }
 
-    pub fn load_font<P: AsRef<std::path::Path>>(&mut self, p: P) -> Result<Handle, Error> {
-        if self.freetype.is_none() {
+    pub fn load_font<P: AsRef<std::path::Path>>(&mut self, p: P) -> Result<Handle, Error>
+    {
+        if self.freetype.is_none()
+        {
             self.freetype = Some(Freetype::new()?);
         }
         let ft = self.freetype.as_mut().unwrap();
-        let h =  ft.add_font(p)?;
+        let h = ft.add_font(p)?;
 
         Ok(h)
     }
@@ -70,53 +76,6 @@ impl Window
     pub fn remove(&mut self)
     {
         self.freetype = None;
-    }
-    
-    pub fn draw_text(&self, handle: Handle, text: &str, x: f32, y: f32, scale: f32, color: math::Vec3) -> Result<(), Error> {
-        let Some(ref ft) = self.freetype else { return Err(Error::NoFont); };
-
-        let ref shader = ft.quad.shader;
-        shader.bind();
-        shader.set_uniform_f3("u_TextColor\0", color.x, color.y, color.z);
-        shader.set_uniform_mat4f("u_Projection\0", &self.proj);
-
-        unsafe {
-            gl::ActiveTexture(gl::TEXTURE0);
-            ft.quad.va.bind();
-            let mut x = x;
-
-            for c in text.chars() {
-                let ch = ft.characters.get(&(handle, c)).unwrap();
-                let xpos = x + (ch.bearing.x as f32) * scale;
-                let ypos: f32 = y - ((ch.size.y - ch.bearing.y) as f32) * scale;
-
-                let w = ch.size.x as f32 * scale;
-                let h = ch.size.y as f32 * scale;
-
-                #[rustfmt::skip]
-                let vertices: [f32; 24] = [
-                    xpos, ypos + h, 0.0, 0.0,
-                    xpos, ypos, 0.0, 1.0,
-                    xpos + w, ypos, 1.0, 1.0,
-
-                    xpos, ypos + h, 0.0, 0.0,
-                    xpos + w, ypos, 1.0, 1.0,
-                    xpos + w, ypos + h, 1.0, 0.0,
-                ];
-
-                gl::BindTexture(gl::TEXTURE_2D, ch.texture_id);
-                ft.quad.vb.sub_data(&vertices);
-
-                gl::DrawArrays(gl::TRIANGLES, 0, 6);
-                x += ((ch.advance >> 6) as f32) * scale;
-            }
-
-            ft.quad.va.unbind();
-            ft.quad.vb.unbind();
-            gl::BindTexture(gl::TEXTURE_2D, 0);
-        }
-
-        Ok(())
     }
 
     pub fn poll_events(&self) -> impl Iterator<Item = glfw::WindowEvent> + '_
@@ -158,34 +117,14 @@ impl Window
 
     pub fn draw<D: Drawable>(&self, d: D)
     {
-        let va = d.vertex_array();
-        let ib = d.index_buffer();
-        let shader = d.shader();
-        let model = d.model();
-
-        let texture = d.texture();
-        if let Some(t) = texture
-        {
-            t.bind(None);
-        }
-
-        shader.bind();
-        let view = glm::translate(&glm::identity::<f32, 4>(), &glm::vec3(0., 0., 0.));
-
-        let mvp = self.proj * view * model;
-        shader.set_uniform_mat4f("u_MVP\0", &mvp);
-
-        self.renderer.draw(va, ib, shader);
-
-        if let Some(t) = texture
-        {
-            t.unbind();
-        }
+        d.draw(self.proj);
     }
 }
 
-impl Drop for Window {
-    fn drop(&mut self) {
+impl Drop for Window
+{
+    fn drop(&mut self)
+    {
         drop(self.freetype.take());
     }
 }

@@ -1,14 +1,22 @@
-use std::collections::HashMap;
+use std::{cell::RefCell, collections::HashMap};
 
 use freetype::Library;
 
 use crate::{
     core::{shader, util::ptr, vertex_array, vertex_buffer, vertex_buffer_layout},
     error::Error,
-    graphics::text::Character,
+    math,
     math::IVec2,
     util::{get_shader, ShaderProgram::Text},
 };
+
+pub struct Character
+{
+    pub texture_id: u32,
+    pub size:       math::IVec2,
+    pub bearing:    math::IVec2,
+    pub advance:    u32,
+}
 
 pub struct Quad
 {
@@ -42,15 +50,34 @@ impl Quad
     }
 }
 
+use std::rc::Rc;
+pub struct Handle(
+    pub(crate) usize,
+    pub(crate) Rc<Quad>,
+    pub(crate) Rc<RefCell<HashMap<(usize, char), Character>>>,
+);
 
-#[derive(Hash, Eq, PartialEq, Clone, Copy)]
-pub struct Handle(usize);
+impl std::cmp::PartialEq for Handle
+{
+    fn eq(&self, other: &Handle) -> bool
+    {
+        self.0 == other.0
+    }
+}
+impl std::cmp::Eq for Handle {}
+impl std::hash::Hash for Handle
+{
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H)
+    {
+        self.0.hash(state);
+    }
+}
 
 pub struct Freetype
 {
     lib:            Library,
-    pub characters: HashMap<(Handle, char), Character>,
-    pub quad:       Quad,
+    pub characters: Rc<RefCell<HashMap<(usize, char), Character>>>,
+    pub quad:       Rc<Quad>,
     idx:            usize,
 }
 
@@ -66,8 +93,8 @@ impl Freetype
         let lib = Library::init()?;
         Ok(Self {
             lib,
-            characters: HashMap::new(),
-            quad: Quad::new(),
+            characters: Rc::default(),
+            quad: Rc::new(Quad::new()),
             idx: 0,
         })
     }
@@ -81,7 +108,7 @@ impl Freetype
 
         face.set_pixel_sizes(0, 48)?;
 
-        let handle = Handle(self.idx);
+        let handle = Handle(self.idx, Rc::clone(&self.quad), Rc::clone(&self.characters));
         self.idx += 1;
 
         for ch in (0u8 as char)..(128u8 as char)
@@ -120,7 +147,7 @@ impl Freetype
                 bearing: IVec2::new(glyph.bitmap_left(), glyph.bitmap_top()),
                 advance: glyph.advance().x as _,
             };
-            self.characters.insert((handle, ch), character);
+            self.characters.borrow_mut().insert((handle.0, ch), character);
         }
 
         Ok(handle)

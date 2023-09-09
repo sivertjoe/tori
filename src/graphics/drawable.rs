@@ -1,39 +1,52 @@
-use crate::{core::*, math};
+use crate::math;
 pub trait Drawable
 {
-    fn vertex_array(&self) -> &vertex_array::VertexArray;
-    fn index_buffer(&self) -> &index_buffer::IndexBuffer;
-    fn shader(&self) -> &shader::Shader;
-    fn model(&self) -> math::Mat4;
-    fn texture(&self) -> Option<&texture::Texture>;
+    fn draw(&self, proj: math::Mat4);
 }
 
 impl<T> Drawable for &T
 where
     T: Drawable,
 {
-    fn model(&self) -> math::Mat4
+    fn draw(&self, proj: math::Mat4)
     {
-        (*self).model()
+        (*self).draw(proj);
+    }
+}
+
+use crate::core::{
+    index_buffer::IndexBuffer, shader::Shader, texture::Texture, vertex_array::VertexArray,
+};
+pub(crate) fn std_draw(
+    va: &VertexArray,
+    ib: &IndexBuffer,
+    shader: &Shader,
+    model: math::Mat4,
+    proj: math::Mat4,
+    texture: Option<&Texture>,
+)
+{
+    if let Some(t) = texture
+    {
+        t.bind(None);
     }
 
-    fn shader(&self) -> &shader::Shader
+    shader.bind();
+
+    let mvp = proj * model;
+    shader.set_uniform_mat4f("u_MVP\0", &mvp);
+
+    shader.bind();
+    va.bind();
+    ib.bind();
+
+    unsafe
     {
-        (*self).shader()
+        gl::DrawElements(gl::TRIANGLES, ib.count as _, gl::UNSIGNED_INT, std::ptr::null());
     }
 
-    fn vertex_array(&self) -> &vertex_array::VertexArray
+    if let Some(t) = texture
     {
-        (*self).vertex_array()
-    }
-
-    fn index_buffer(&self) -> &index_buffer::IndexBuffer
-    {
-        (*self).index_buffer()
-    }
-
-    fn texture(&self) -> Option<&texture::Texture>
-    {
-        (*self).texture()
+        t.unbind();
     }
 }

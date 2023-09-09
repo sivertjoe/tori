@@ -129,37 +129,16 @@ impl SpriteSheet
     }
 }
 
-
-use crate::graphics::drawable::Drawable;
+use crate::graphics::drawable::{std_draw, Drawable};
 impl<'t> Drawable for Sprite<'t>
 {
-    fn texture(&self) -> Option<&crate::core::texture::Texture>
-    {
-        Some(self.texture.get_core())
-    }
-
-    fn model(&self) -> math::Mat4
+    fn draw(&self, proj: math::Mat4)
     {
         let t = &self.texture.texture;
 
         let w = self.entity.scale[0] * t.width as f32;
         let h = self.entity.scale[1] * t.height as f32;
-
-        self.entity.get_model([w, h])
-    }
-
-    fn shader(&self) -> &shader::Shader
-    {
-        &self.shader
-    }
-
-    fn vertex_array(&self) -> &vertex_array::VertexArray
-    {
-        &self.va
-    }
-
-    fn index_buffer(&self) -> &index_buffer::IndexBuffer
-    {
-        &self.ib
+        let model = self.entity.get_model([w, h]);
+        std_draw(&self.va, &self.ib, &self.shader, model, proj, Some(&self.texture.texture));
     }
 }

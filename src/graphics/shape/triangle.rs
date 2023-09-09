@@ -74,32 +74,13 @@ impl Triangle
     }
 }
 
-use crate::graphics::drawable::Drawable;
+use crate::graphics::drawable::{std_draw, Drawable};
 impl Drawable for Triangle
 {
-    fn shader(&self) -> &shader::Shader
-    {
-        &self.shader
-    }
-
-    fn vertex_array(&self) -> &vertex_array::VertexArray
-    {
-        &self.va
-    }
-
-    fn index_buffer(&self) -> &index_buffer::IndexBuffer
-    {
-        &self.ib
-    }
-
-    fn model(&self) -> glm::Mat4
+    fn draw(&self, proj: math::Mat4)
     {
         let pos = glm::identity();
-        glm::translate(&pos, &glm::vec3(pos[0], pos[1], 0.0))
-    }
-
-    fn texture(&self) -> Option<&crate::core::texture::Texture>
-    {
-        None
+        let model = glm::translate(&pos, &glm::vec3(pos[0], pos[1], 0.0));
+        std_draw(&self.va, &self.ib, &self.shader, model, proj, None);
     }
 }
