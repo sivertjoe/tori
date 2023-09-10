@@ -9,6 +9,7 @@ pub enum Error
     Io(#[from] std::io::Error),
     Font(#[from] freetype::Error),
     NoFont,
+    FontCharError(String),
 }
 
 impl std::fmt::Display for Error

@@ -80,7 +80,7 @@ impl Freetype
         Ok(())
     }
 
-    pub fn add_font<P>(&mut self, path: P, set: CharSet) -> Result<Handle, freetype::Error>
+    pub fn add_font<P>(&mut self, path: P, set: CharSet) -> Result<Handle, Error>
     where
         P: AsRef<std::path::Path>,
     {
@@ -105,6 +105,27 @@ impl Freetype
                 for ch in iter.into_iter()
                 {
                     self.add_char(&face, ch, handle.0)?;
+                }
+            },
+            CharSet::All =>
+            unsafe
+            {
+                use freetype::freetype_sys;
+                let mut face = face;
+                let idx: std::ffi::c_uint = 0;
+
+                let mut code =
+                    freetype_sys::FT_Get_First_Char(face.raw_mut(), &idx as *const u32 as *mut u32);
+                while idx != 0
+                {
+                    let ch = char::from_u32(code as u32)
+                        .ok_or(Error::FontCharError(format!("Error trying to load {}", code)))?;
+                    self.add_char(&face, ch, handle.0)?;
+                    code = freetype_sys::FT_Get_Next_Char(
+                        face.raw_mut(),
+                        code,
+                        &idx as *const u32 as *mut u32,
+                    );
                 }
             },
         }
