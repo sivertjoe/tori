@@ -5,7 +5,7 @@ use crate::{
     error::Error,
     graphics::{
         drawable::Drawable,
-        text::{freetype::Freetype, Handle},
+        text::{freetype::Freetype, CharSet, Handle},
     },
 };
 
@@ -61,14 +61,16 @@ impl Window
         })
     }
 
-    pub fn load_font<P: AsRef<std::path::Path>>(&mut self, p: P) -> Result<Handle, Error>
+    pub fn load_font<P>(&mut self, p: P, set: CharSet) -> Result<Handle, Error>
+    where
+        P: AsRef<std::path::Path>,
     {
         if self.freetype.is_none()
         {
             self.freetype = Some(Freetype::new()?);
         }
         let ft = self.freetype.as_mut().unwrap();
-        let h = ft.add_font(p)?;
+        let h = ft.add_font(p, set)?;
 
         Ok(h)
     }
