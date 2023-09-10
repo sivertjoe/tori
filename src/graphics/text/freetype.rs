@@ -9,12 +9,17 @@ use crate::{
     math::IVec2,
 };
 
+pub struct Inner
+{
+    pub characters: RefCell<HashMap<(usize, char), Character>>,
+    pub quad:       Quad,
+}
+
 pub struct Freetype
 {
-    lib:            Library,
-    pub characters: Rc<RefCell<HashMap<(usize, char), Character>>>,
-    pub quad:       Rc<Quad>,
-    idx:            usize,
+    lib:       Library,
+    pub inner: Rc<Inner>,
+    idx:       usize,
 }
 
 impl Freetype
@@ -26,11 +31,13 @@ impl Freetype
             // idk if this is needed
             gl::PixelStorei(gl::UNPACK_ALIGNMENT, 1);
         }
+
         let lib = Library::init()?;
         Ok(Self {
             lib,
-            characters: Rc::default(),
-            quad: Rc::new(Quad::new()),
+            inner: Rc::new(Inner {
+                characters: RefCell::default(), quad: Quad::new()
+            }),
             idx: 0,
         })
     }
@@ -76,7 +83,7 @@ impl Freetype
             bearing: IVec2::new(glyph.bitmap_left(), glyph.bitmap_top()),
             advance: glyph.advance().x as _,
         };
-        self.characters.borrow_mut().insert((handle_key, ch), character);
+        self.inner.characters.borrow_mut().insert((handle_key, ch), character);
         Ok(())
     }
 
@@ -88,7 +95,7 @@ impl Freetype
 
         face.set_pixel_sizes(0, 48)?;
 
-        let handle = Handle(self.idx, Rc::clone(&self.quad), Rc::clone(&self.characters));
+        let handle = Handle(self.idx, Rc::clone(&self.inner));
         self.idx += 1;
 
         match set

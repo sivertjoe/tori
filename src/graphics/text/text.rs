@@ -37,13 +37,13 @@ impl<'h> Drawable for Text<'h>
 {
     fn draw(&self, proj: math::Mat4)
     {
-        let quad = &self.handle.1;
-        let shader = &self.handle.1.shader;
+        let quad = &self.handle.1.quad;
+        let shader = &quad.shader;
         shader.bind();
         shader.set_uniform_f3("u_TextColor\0", self.color.x, self.color.y, self.color.z);
         shader.set_uniform_mat4f("u_Projection\0", &proj);
 
-        let characters = self.handle.2.borrow();
+        let characters = self.handle.1.characters.borrow();
 
         unsafe
         {
