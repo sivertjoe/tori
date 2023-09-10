@@ -14,13 +14,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>>
 
     let jap = window.load_font(
         "jap.ttf",
-        CharSet::Custom(Box::new(
-            [
-                '今', '朝', '、', '鳥', 'が', 'き', 'れ', 'い', 'に', '鳴', 'い', 'て', 'い', 'ま',
-                'し', 'た',
-            ]
-            .into_iter(),
-        )),
+        CharSet::Custom(Box::new("今朝、鳥がきれいに鳴いていました".chars())),
     )?;
 
     let all = window.load_font("OpenSans-Italic.ttf", CharSet::All)?;
