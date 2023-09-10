@@ -1,77 +1,13 @@
-use std::{cell::RefCell, collections::HashMap};
+use std::{cell::RefCell, collections::HashMap, rc::Rc};
 
 use freetype::Library;
 
 use crate::{
-    core::{shader, util::ptr, vertex_array, vertex_buffer, vertex_buffer_layout},
+    core::util::ptr,
     error::Error,
-    math,
+    graphics::text::{character::Character, quad::Quad, Handle},
     math::IVec2,
-    util::{get_shader, ShaderProgram::Text},
 };
-
-pub struct Character
-{
-    pub texture_id: u32,
-    pub size:       math::IVec2,
-    pub bearing:    math::IVec2,
-    pub advance:    u32,
-}
-
-pub struct Quad
-{
-    pub va:     vertex_array::VertexArray,
-    pub vb:     vertex_buffer::VertexBuffer,
-    pub shader: shader::Shader,
-}
-
-impl Quad
-{
-    pub fn new() -> Self
-    {
-        let vb =
-            vertex_buffer::VertexBuffer::new_dynamic(6 * 4 * std::mem::size_of::<f32>() as isize);
-        let mut va = vertex_array::VertexArray::new();
-        let mut layout = vertex_buffer_layout::VertexBufferLayout::new();
-        layout.push(4, gl::FLOAT);
-        va.add_buffer(&vb, layout);
-
-        let shader = shader::Shader::from_shader_string(get_shader(Text));
-
-        vb.unbind();
-        va.unbind();
-        shader.unbind();
-
-        Self {
-            va,
-            vb,
-            shader,
-        }
-    }
-}
-
-use std::rc::Rc;
-pub struct Handle(
-    pub(crate) usize,
-    pub(crate) Rc<Quad>,
-    pub(crate) Rc<RefCell<HashMap<(usize, char), Character>>>,
-);
-
-impl std::cmp::PartialEq for Handle
-{
-    fn eq(&self, other: &Handle) -> bool
-    {
-        self.0 == other.0
-    }
-}
-impl std::cmp::Eq for Handle {}
-impl std::hash::Hash for Handle
-{
-    fn hash<H: std::hash::Hasher>(&self, state: &mut H)
-    {
-        self.0.hash(state);
-    }
-}
 
 pub struct Freetype
 {

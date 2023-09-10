@@ -5,7 +5,7 @@ use crate::{
     error::Error,
     graphics::{
         drawable::Drawable,
-        freetype::{Freetype, Handle},
+        text::{freetype::Freetype, Handle},
     },
 };
 

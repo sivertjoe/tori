@@ -1,4 +1,4 @@
-use crate::{graphics::freetype::Handle, math};
+use crate::{graphics::text::Handle, math};
 
 pub struct Text<'handle>
 {
