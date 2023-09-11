@@ -121,6 +121,11 @@ impl Window
     {
         d.draw(self.proj);
     }
+
+    pub fn draw_dyn(&self, d: &dyn Drawable)
+    {
+        d.draw(self.proj);
+    }
 }
 
 impl Drop for Window
