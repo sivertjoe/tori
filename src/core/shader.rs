@@ -223,7 +223,7 @@ impl Shader
                 }
                 else
                 {
-                    panic!("Encountered something else..");
+                    panic!("Encountered something else.. {}", line);
                 }
                 continue;
             }
