@@ -1,17 +1,16 @@
 use crate::{
     core::{index_buffer, shader, vertex_array, vertex_buffer, vertex_buffer_layout},
+    graphics::entity::Entity,
     math,
     util::{get_shader, ShaderProgram::Basic},
 };
 
-const DATA: &str = include_str!("../../../res/shaders/shape.color.shader");
-
 pub struct Rect
 {
-    shader:  shader::Shader,
-    va:      vertex_array::VertexArray,
-    ib:      index_buffer::IndexBuffer,
-    pub pos: math::Vec2,
+    shader:     shader::Shader,
+    va:         vertex_array::VertexArray,
+    ib:         index_buffer::IndexBuffer,
+    pub entity: Entity,
 }
 
 impl Rect
@@ -20,10 +19,10 @@ impl Rect
     {
         #[rustfmt::skip]
         let positions: [f32; 16] = [
-             0., 0., 0., 0.,  // bottom left
-             w, 0., 1., 0.,  // bottom right
-             w, h, 1.0, 1.0, // top right
-             0., h, 0., 1.// top left
+            -0.5, -0.5,  0., 0., // bottom left
+             0.5, -0.5,  1., 0., // bottom right
+             0.5,  0.5,  1., 1., // top right
+            -0.5,  0.5,  0., 1.  // top left
         ];
 
         #[rustfmt::skip]
@@ -50,13 +49,13 @@ impl Rect
         ib.unbind();
         shader.unbind();
 
-        let pos = math::vec2(x, y);
+        let entity = Entity::new(math::vec2(w, h), math::vec2(x, y), 0.0);
 
         Self {
             shader,
             va,
             ib,
-            pos,
+            entity,
         }
     }
 
@@ -76,8 +75,7 @@ impl Drawable for Rect
 {
     fn draw(&self, proj: math::Mat4)
     {
-        let pos = glm::identity();
-        let model = glm::translate(&pos, &glm::vec3(pos[0], pos[1], 0.0));
+        let model = self.entity.get_model();
         std_draw(&self.va, &self.ib, &self.shader, model, proj, None);
     }
 }

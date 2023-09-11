@@ -23,14 +23,14 @@ impl<'tex> Sprite<'tex>
     pub fn new(texture: &'tex texture::Texture) -> Self
     {
         let core = texture.get_core();
-        let w = core.width as _;
-        let h = core.height as _;
+        let w = core.width as f32;
+        let h = core.height as f32;
         #[rustfmt::skip]
         let positions: [f32; 16] = [
-            0., 0., 0., 0., // bottom left
-            w,  0., 1., 0., // bottom right
-            w,  h,  1., 1., // top right
-            0., h,  0., 1.  // top left
+            -0.5, -0.5,  0., 0., // bottom left
+             0.5, -0.5,  1., 0., // bottom right
+             0.5,  0.5,  1., 1., // top right
+            -0.5,  0.5,  0., 1.  // top left
         ];
 
         #[rustfmt::skip]
@@ -69,7 +69,7 @@ impl<'tex> Sprite<'tex>
             ib,
             shader: Rc::new(shader),
             texture,
-            entity: Entity::new(math::vec2(1.0, 1.0), math::vec2(0.0, 0.0), 0.0),
+            entity: Entity::new(math::vec2(w, h), math::vec2(0.0, 0.0), 0.0),
         }
     }
 
@@ -83,8 +83,8 @@ impl<'tex> Sprite<'tex>
         shader.set_uniform_1f("u_Rows", num_rows as _);
         shader.unbind();
 
-        self.entity.scale[0] /= num_cols as f32;
-        self.entity.scale[1] /= num_rows as f32;
+        self.entity.size[0] /= num_cols as f32;
+        self.entity.size[1] /= num_rows as f32;
 
         SpriteSheet {
             shader: Rc::clone(&self.shader),
@@ -134,11 +134,7 @@ impl<'t> Drawable for Sprite<'t>
 {
     fn draw(&self, proj: math::Mat4)
     {
-        let t = &self.texture.texture;
-
-        let w = self.entity.scale[0] * t.width as f32;
-        let h = self.entity.scale[1] * t.height as f32;
-        let model = self.entity.get_model([w, h]);
+        let model = self.entity.get_model();
         std_draw(&self.va, &self.ib, &self.shader, model, proj, Some(&self.texture.texture));
     }
 }
