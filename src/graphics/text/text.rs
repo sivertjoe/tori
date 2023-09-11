@@ -30,6 +30,38 @@ impl<'h> Text<'h>
             scale,
         }
     }
+
+    pub fn get_bounding_box(&self) -> math::Vec4
+    {
+        let chars = self.handle.1.characters.borrow();
+
+        let mut x = self.x;
+        let mut y = None;
+        let mut width = 0.0f32;
+        let mut height = 0.0f32;
+
+        let len = self.text.len();
+        for (i, c) in self.text.chars().enumerate()
+        {
+            let ch = chars.get(&(self.handle.0, c)).unwrap();
+            let ypos = self.y - (ch.size.y as f32 - ch.bearing.y as f32) * self.scale;
+            if y.is_none()
+            {
+                y = Some(ypos);
+                x += ch.bearing.x as f32;
+            }
+
+            let w = ch.size.x as f32 * self.scale;
+            let h = ch.size.y as f32 * self.scale;
+
+            let adv = if i + 1 == len { w } else { (ch.advance >> 6) as f32 * self.scale };
+
+            width += adv;
+            height = height.max(h);
+        }
+
+        math::vec4(x, y.unwrap_or_default(), width, height)
+    }
 }
 
 use crate::graphics::drawable::Drawable;
