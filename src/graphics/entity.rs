@@ -23,12 +23,14 @@ impl Entity
     pub fn get_model(&self) -> Mat4
     {
         let mut model = math::identity();
+        let scale = math::vec3(self.size[0] * self.scale[0], self.size[1] * self.scale[1], 1.0);
 
         model = math::translate(&model, &math::vec3(self.pos[0], self.pos[1], 0.0));
 
+        model = math::translate(&model, &math::vec3(0.5 * scale[0], 0.5 * scale[1], 0.0));
         model = math::rotate(&model, self.rotation, &glm::vec3(0.0, 0.0, 1.0));
+        model = math::translate(&model, &math::vec3(-0.5 * scale[0], -0.5 * scale[1], 0.0));
 
-        let scale = math::vec3(self.size[0] * self.scale[0], self.size[1] * self.scale[1], 1.0);
         model = math::scale(&model, &scale);
         model
     }
