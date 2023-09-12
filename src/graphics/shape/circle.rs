@@ -70,7 +70,7 @@ impl Drawable for Circle
 
         let mut model = math::identity();
         model = math::translate(&model, &math::vec3(self.center[0], self.center[1], 1.0));
-        model = math::scale(&model, &math::vec3(150.0, 150.0, 50.0));
+        model = math::scale(&model, &math::vec3(self.radius, self.radius, 1.0));
 
         std_draw(&self.va, &self.ib, &self.shader, model, proj, None);
     }

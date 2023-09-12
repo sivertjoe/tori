@@ -24,7 +24,7 @@ void main()
     vec3 circleColor = vec3(0.85, 0.35, 0.2);
 
     float dist = length(fragCoord);
-    if(dist < 0.5)
+    if(dist < 0.495)
     {
         fragColor = vec4(circleColor, 1.0);
     } 
