@@ -2,12 +2,12 @@ use crate::{graphics::text::Handle, math};
 
 pub struct Text<'handle>
 {
-    pub text: String,
-    handle:   &'handle Handle,
-    x:        f32,
-    y:        f32,
-    scale:    f32,
-    color:    math::Vec3,
+    pub text:  String,
+    handle:    &'handle Handle,
+    x:         f32,
+    y:         f32,
+    scale:     f32,
+    pub color: math::Vec4,
 }
 
 impl<'h> Text<'h>
@@ -18,7 +18,7 @@ impl<'h> Text<'h>
         x: f32,
         y: f32,
         scale: f32,
-        color: math::Vec3,
+        color: math::Vec4,
     ) -> Self
     {
         Self {
@@ -72,7 +72,13 @@ impl<'h> Drawable for Text<'h>
         let quad = &self.handle.1.quad;
         let shader = &quad.shader;
         shader.bind();
-        shader.set_uniform_f3("u_TextColor\0", self.color.x, self.color.y, self.color.z);
+        shader.set_uniform_f4(
+            "u_TextColor\0",
+            self.color.x,
+            self.color.y,
+            self.color.z,
+            self.color.w,
+        );
         shader.set_uniform_mat4f("u_Projection\0", &proj);
 
         let characters = self.handle.1.characters.borrow();
