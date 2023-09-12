@@ -1,4 +1,4 @@
-use crate::math::{self, Mat4, Vec2};
+use crate::math::{self, Mat4, Vec2, Vec4};
 
 pub struct Entity
 {
@@ -33,5 +33,10 @@ impl Entity
 
         model = math::scale(&model, &scale);
         model
+    }
+
+    pub fn get_bouding_box(&self) -> Vec4
+    {
+        math::vec4(self.pos.x, self.pos.y, self.size[0], self.size[1])
     }
 }
