@@ -96,6 +96,24 @@ impl Window
         }
     }
 
+    pub fn is_mouse_key_pressed(&self, mb: crate::event::MouseButton) -> bool
+    {
+        use glfw::Action as A;
+        match self.window.borrow().get_mouse_button(mb)
+        {
+            A::Press | A::Repeat => true,
+            A::Release => false,
+        }
+    }
+
+    pub fn get_mouse_pos(&self) -> crate::math::Vec2
+    {
+        let wind = self.window.borrow();
+        let (x, y) = wind.get_cursor_pos();
+        let (_, y_max) = wind.get_size();
+        crate::math::vec2(x as f32, y_max as f32 - y as f32)
+    }
+
     pub fn is_open(&self) -> bool
     {
         !self.window.borrow().should_close()
