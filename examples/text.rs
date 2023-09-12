@@ -22,7 +22,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>>
     let mut last_time = Instant::now();
     let mut n_frames = 0;
 
-    let mut fps = Text::new(&ascii, "starting...", 0.0, 250.0, 0.75, math::vec3(1.0, 1.0, 0.5));
+    let mut fps =
+        Text::new(&ascii, "starting...", 0.0, 250.0, 0.75, math::vec4(1.0, 1.0, 0.5, 1.0));
 
     let jap = Text::new(
         &jap,
@@ -30,10 +31,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>>
         0.0,
         150.0,
         0.5,
-        math::vec3(0.0, 0.75, 0.45),
+        math::vec4(0.0, 0.75, 0.45, 1.0),
     );
 
-    let text = Text::new(&all, "æøå", 0.0, 0.0, 1.5, math::vec3(0.3, 0.5, 0.1));
+    let text = Text::new(&all, "æøå", 0.0, 0.0, 1.5, math::vec4(0.3, 0.5, 0.1, 1.0));
 
 
     while window.is_open()

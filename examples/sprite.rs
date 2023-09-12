@@ -4,8 +4,8 @@ use tori::{
     window::Window,
 };
 
-const LEFT: (isize, u32, u32) = (-1, 0, 7);
-const RIGHT: (isize, u32, u32) = (1, 8, 15);
+const LEFT: (f32, u32, u32) = (-1.0, 0, 7);
+const RIGHT: (f32, u32, u32) = (1.0, 8, 15);
 
 fn main() -> Result<(), Box<dyn std::error::Error>>
 {
@@ -38,15 +38,14 @@ fn main() -> Result<(), Box<dyn std::error::Error>>
         if mov.elapsed().as_secs_f32() > 0.03
         {
             mov = Instant::now();
-            let mut pos = sprite.pos.get();
-            pos[0] += 5_isize.saturating_mul(dir.0);
-            sprite.pos.set(pos);
+            let mut pos = sprite.entity.pos;
+            pos[0] += 5.0 * dir.0;
         }
 
-        let v: isize = sprite.pos.get()[0];
-        if v < 0 || (v + sprite.get_size()[0] as isize) >= 300
+        let v: f32 = sprite.entity.pos[0];
+        if v < 0.0 || (v + sprite.entity.size[0]) >= 300.0
         {
-            let nd = if v < 0 { RIGHT } else { LEFT };
+            let nd = if v < 0.0 { RIGHT } else { LEFT };
             dir = nd;
             now = Instant::now();
             sheet.set_idx(dir.1);
