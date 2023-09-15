@@ -9,13 +9,13 @@ use tori::{
     math::{vec2, vec4, Vec2, Vec4},
 };
 
-pub struct Game<'f>
+pub struct Game
 {
     paddle:     Rect,
-    score_text: Text<'f>,
+    score_text: Text,
     score:      isize,
     bricks:     Vec<Rect>,
-    info:       Text<'f>,
+    info:       Text,
     timer:      Instant,
     toggle:     bool,
     ball:       Circle,
@@ -23,9 +23,9 @@ pub struct Game<'f>
 }
 
 
-impl<'f> Game<'f>
+impl Game
 {
-    pub fn new(handle: &'f Handle) -> Self
+    pub fn new(handle: &Handle) -> Self
     {
         let mut bricks = Vec::new();
         let colors: Vec<Vec4> = vec![
@@ -98,7 +98,7 @@ impl<'f> Game<'f>
     }
 }
 
-impl<'f> crate::Scene for Game<'f>
+impl crate::Scene for Game
 {
     fn update(&mut self, window: &tori::window::Window) -> Option<crate::NewSceneInfo>
     {

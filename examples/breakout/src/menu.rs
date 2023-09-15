@@ -8,16 +8,16 @@ use tori::{
     math,
 };
 
-pub struct Menu<'font>
+pub struct Menu
 {
-    pub welcome_text: Text<'font>,
-    pub play_text:    Text<'font>,
+    pub welcome_text: Text,
+    pub play_text:    Text,
     play_rect:        Rect,
 }
 
-impl<'f> Menu<'f>
+impl Menu
 {
-    pub fn new(handle: &'f Handle) -> Self
+    pub fn new(handle: &Handle) -> Self
     {
         let play_text =
             Text::new(handle, "PLAY", 300.0, 150.0, 1.0, math::vec4(0.9, 0.9, 0.9, 1.0));
@@ -39,7 +39,7 @@ impl<'f> Menu<'f>
     }
 }
 
-impl<'f> crate::Scene for Menu<'f>
+impl crate::Scene for Menu
 {
     fn update(&mut self, window: &tori::window::Window) -> Option<crate::NewSceneInfo>
     {

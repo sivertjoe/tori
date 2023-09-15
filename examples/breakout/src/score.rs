@@ -6,14 +6,14 @@ use tori::{
     math,
 };
 
-pub struct Score<'font>
+pub struct Score
 {
-    text: Text<'font>,
+    text: Text
 }
 
-impl<'f> Score<'f>
+impl Score
 {
-    pub fn new(handle: &'f Handle, score: isize) -> Self
+    pub fn new(handle: &Handle, score: isize) -> Self
     {
         let text = Text::new(
             handle,
@@ -30,7 +30,7 @@ impl<'f> Score<'f>
     }
 }
 
-impl<'f> crate::Scene for Score<'f>
+impl crate::Scene for Score
 {
     fn update(&mut self, _window: &tori::window::Window) -> Option<crate::NewSceneInfo>
     {
