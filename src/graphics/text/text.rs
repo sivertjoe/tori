@@ -1,19 +1,19 @@
 use crate::{graphics::text::Handle, math};
 
-pub struct Text<'handle>
+pub struct Text
 {
-    pub text:  String,
-    handle:    &'handle Handle,
-    x:         f32,
-    y:         f32,
-    scale:     f32,
-    pub color: math::Vec4,
+    pub text:   String,
+    pub handle: Handle,
+    pub x:      f32,
+    pub y:      f32,
+    pub scale:  f32,
+    pub color:  math::Vec4,
 }
 
-impl<'h> Text<'h>
+impl Text
 {
     pub fn new(
-        handle: &'h Handle,
+        handle: &Handle,
         text: impl Into<String>,
         x: f32,
         y: f32,
@@ -22,7 +22,7 @@ impl<'h> Text<'h>
     ) -> Self
     {
         Self {
-            handle,
+            handle: handle.clone(),
             text: text.into(),
             x,
             y,
@@ -65,7 +65,7 @@ impl<'h> Text<'h>
 }
 
 use crate::graphics::drawable::Drawable;
-impl<'h> Drawable for Text<'h>
+impl Drawable for Text
 {
     fn draw(&self, proj: math::Mat4)
     {
