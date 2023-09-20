@@ -156,13 +156,10 @@ impl SpriteSheet
                 self.idx = index_range.start
             }
             // However, I only want to update `idx` after the duration
-            else
+            else if timer.elapsed() >= index_range.duration
             {
-                if timer.elapsed() >= index_range.duration
-                {
-                    *timer = Instant::now();
-                    self.idx = (self.idx + 1) % (index_range.end + 1);
-                }
+                *timer = Instant::now();
+                self.idx = (self.idx + 1) % (index_range.end + 1);
             };
 
             true
@@ -172,8 +169,6 @@ impl SpriteSheet
             false
         }
     }
-
-
 
     pub fn get_num_cols(&self) -> u32
     {

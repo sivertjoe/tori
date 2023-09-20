@@ -24,7 +24,7 @@ impl<'a> AsRef<CStr> for Cow<'a>
 
 impl<'a> Cow<'a>
 {
-    fn into_c_string(&self) -> CString
+    fn to_c_string(&self) -> CString
     {
         match self
         {
@@ -170,7 +170,7 @@ impl Shader
         let s = name.into();
         let location = unsafe
         {
-            let key = s.into_c_string();
+            let key = s.to_c_string();
 
             let name = s.as_ref();
 
