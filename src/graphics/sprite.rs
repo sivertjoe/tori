@@ -91,20 +91,90 @@ impl<'tex> Sprite<'tex>
             num_cols,
             num_rows,
             idx: 0,
+            frames: Vec::new(),
+            current_dir: None,
         }
     }
 }
 
+struct FrameIndexRange 
+{
+    key:    crate::event::Key, 
+    start:  u32,
+    end:    u32,
+    duration: Duration,
+}
+
+impl FrameIndexRange
+{
+    fn contains(&self, val: u32) -> bool
+    {
+        (self.start..=self.end).contains(&val)
+    }
+}
+
+
+use std::time::{Instant, Duration};
 pub struct SpriteSheet
 {
     shader:   Rc<shader::Shader>,
     num_cols: u32,
     num_rows: u32,
     pub idx:  u32,
+
+    frames: Vec<FrameIndexRange>,
+    current_dir: Option<(crate::event::Key, Instant)>,
+    
 }
 
 impl SpriteSheet
 {
+    pub fn register_event_range(&mut self, key: crate::event::Key, start: u32, end: u32, duration: Duration)
+    {
+        self.frames.push(
+            FrameIndexRange {
+                key,
+                start,
+                end,
+                duration
+            });
+    }
+    pub fn set_direction(&mut self, key: Option<crate::event::Key>)
+    {
+        self.current_dir = key.map(|s| (s, Instant::now()));
+    }
+    
+    pub fn update_index(&mut self) -> bool
+    {
+        let Some((key, timer)) = self.current_dir.as_mut() else { return false; };
+
+        if let Some(index_range) = self.frames.iter().find(|r| r.key == *key)
+        {
+            // I always want to set the direction to the default direction.
+            if !index_range.contains(self.idx)
+            {
+                self.idx = index_range.start
+            }
+            // However, I only want to update `idx` after the duration
+            else
+            {
+                if timer.elapsed() >= index_range.duration
+                {
+                    *timer = Instant::now();
+                    self.idx = (self.idx + 1) % (index_range.end + 1);
+                }
+            };
+
+            true
+        }
+        else
+        {
+            false
+        }
+    }
+
+
+
     pub fn get_num_cols(&self) -> u32
     {
         self.num_cols
